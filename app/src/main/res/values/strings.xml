@@ -11,5 +11,9 @@
     <string name="splash_screen_description">TEMP_STRING</string>
     <string name="start_description">START_DESCRIPTION</string>
     <string name="exit_description">EXIT_DESCRIPTION</string>
+    <string name="title_activity_cast">CastActivity</string>
+    <string name="media_route_menu_title">Play on&#8230;</string>
+    <string name="instructions">INSTRUCTIONS_TEMP</string>
+    <string name="namespace">NAMESPACE_TEMP</string>
 
 </resources>
