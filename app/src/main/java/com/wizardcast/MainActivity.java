@@ -28,7 +28,7 @@ import java.io.IOException;
 public class MainActivity extends ActionBarActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final String APP_ID = "3769C50A";
+    private static final String APP_ID = "5F455926";
     private GLSurfaceView glSurfaceView;
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mMediaRouteSelector;
@@ -88,6 +88,11 @@ public class MainActivity extends ActionBarActivity {
     private void startGame() {
         //Intent intent = new Intent(getBaseContext(), CastActivity.class);
         //startActivity(intent);
+        if(mApiClient == null || !mApiClient.isConnected()) {
+            Toast.makeText(MainActivity.this, "Not Connected to Chromecast", Toast.LENGTH_SHORT).show();
+        } else {
+            sendMessage("TEST");
+        }
 
     }
 /*
@@ -157,51 +162,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    private void setSelectedDevice(CastDevice device) {
-        Log.d(TAG, "setSelectedDevice: " + device);
-        mSelectedDevice = device;
-
-        if (mSelectedDevice != null) {
-            try {
-                disconnectApiClient();
-                connectApiClient();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Exception while connecting API client", e);
-                disconnectApiClient();
-            }
-        } else {
-            if (mApiClient != null) {
-                if (mApiClient.isConnected()) {
-                    //mGameChannel.leave(mApiClient);
-                }
-                disconnectApiClient();
-            }
-            //mJoinGameButton.setEnabled(false);
-
-            //mPlayerNameView.setText(null);
-            //mInfoView.setText(R.string.select_device_text);
-            mMediaRouter.selectRoute(mMediaRouter.getDefaultRoute());
-        }
-    }
-
-    private void connectApiClient() {
-        Cast.CastOptions apiOptions = Cast.CastOptions.builder(mSelectedDevice, mCastListener)
-                .build();
-        mApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Cast.API, apiOptions)
-                .addConnectionCallbacks(mConnectionCallbacks)
-                .addOnConnectionFailedListener(mConnectionFailedListener)
-                .build();
-        mApiClient.connect();
-    }
-
-    private void disconnectApiClient() {
-        if (mApiClient != null) {
-            mApiClient.disconnect();
-            mApiClient = null;
-        }
-    }
-
     /**
      * Tear down connection to the receiver
      */
@@ -259,6 +219,10 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+    /**
+     * Sends Messages to the receiver
+     * @param message
+     */
     private void sendMessage(String message) {
         if (mApiClient != null && mWizCastChannel != null) {
             try {
@@ -277,7 +241,8 @@ public class MainActivity extends ActionBarActivity {
             }
 
         } else {
-            Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+
+            //Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
         }
 
     }

@@ -14,6 +14,6 @@
     <string name="title_activity_cast">CastActivity</string>
     <string name="media_route_menu_title">Play on&#8230;</string>
     <string name="instructions">INSTRUCTIONS_TEMP</string>
-    <string name="namespace">NAMESPACE_TEMP</string>
+    <string name="namespace">urn:x-cast:com.wizardcast.helloworld</string>
 
 </resources>
