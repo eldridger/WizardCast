@@ -23,6 +23,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 public class MainActivity extends ActionBarActivity {
@@ -226,6 +228,13 @@ public class MainActivity extends ActionBarActivity {
     private void sendMessage(String message) {
         if (mApiClient != null && mWizCastChannel != null) {
             try {
+
+                //USING JSON
+                JSONObject object = new JSONObject();
+                object.put("command", "display_text");
+                //object.put("text", message);
+
+
                 Cast.CastApi.sendMessage(
                         mApiClient, mWizCastChannel.getNamespace(), message
                 ).setResultCallback(new ResultCallback<Status>() {
@@ -288,7 +297,7 @@ public class MainActivity extends ActionBarActivity {
                         @Override
                         public void onResult(Cast.ApplicationConnectionResult result) {
                             Status status = result.getStatus();
-                            Log.d(TAG, "ApplicationConnectionResultCallback.onResultL statusCode"
+                            Log.d(TAG, "ApplicationConnectionResultCallback.onResult: statusCode "
                                 + status.getStatusCode());
                             if (status.isSuccess()) {
                                 ApplicationMetadata applicationMetadata = result.getApplicationMetadata();
@@ -327,7 +336,7 @@ public class MainActivity extends ActionBarActivity {
                     });
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Failed to launch applecation", e);
+                Log.e(TAG, "Failed to launch application", e);
             }
         }
 
