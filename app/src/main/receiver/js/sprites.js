@@ -1,7 +1,7 @@
 
 
 var sprites = {
-
+   //.
 
 	background : {
 		image  : null,

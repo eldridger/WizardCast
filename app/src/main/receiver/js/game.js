@@ -1,5 +1,5 @@
 /**
- * Game functions, mostly for handling events
+ * Game functions, mostly for handling events.
  */
 
 
