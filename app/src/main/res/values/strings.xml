@@ -12,8 +12,9 @@
     <string name="start_description">START_DESCRIPTION</string>
     <string name="exit_description">EXIT_DESCRIPTION</string>
     <string name="title_activity_cast">CastActivity</string>
-    <string name="media_route_menu_title">Play on&#8230;</string>
+    <string name="media_route_menu_title">Play on…</string>
     <string name="instructions">INSTRUCTIONS_TEMP</string>
     <string name="namespace">urn:x-cast:com.wizardcast.helloworld</string>
+    <string name="title_activity_game_control">GameControl</string>
 
 </resources>
