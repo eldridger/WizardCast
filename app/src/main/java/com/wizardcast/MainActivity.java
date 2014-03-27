@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
+import android.content.Intent;
 
 import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.Cast;
@@ -88,6 +89,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void startGame() {
+        /*
         //Intent intent = new Intent(getBaseContext(), CastActivity.class);
         //startActivity(intent);
         if(mApiClient == null || !mApiClient.isConnected()) {
@@ -95,6 +97,10 @@ public class MainActivity extends ActionBarActivity {
         } else {
             sendMessage("TEST");
         }
+        */
+        Intent intent = new Intent(getBaseContext(), GameControl.class);
+        startActivity(intent);
+
 
     }
 /*
