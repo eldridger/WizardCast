@@ -23,8 +23,7 @@ public class GameControl extends ActionBarActivity {
     private static float rOriginX, rOriginY, rCurrentX, rCurrentY; // coordinates for right side of screen controls
     long setProjectileDown;
     boolean fingerDown = false;
-
-    //private SendAction sAction; // thread that waits to send message to chromecast
+    private SendAction sAction; // thread that waits to send message to chromecast
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +32,7 @@ public class GameControl extends ActionBarActivity {
         width = metrics.widthPixels;
         height = metrics.heightPixels;
         Log.i(DEBUG_TAG, "resolution "+ width + " " + height);
-        //bsAction = new SendAction();
+        sAction = new SendAction();
         setContentView(R.layout.activity_game_control);
 
         if (savedInstanceState == null) {
@@ -160,27 +159,39 @@ public class GameControl extends ActionBarActivity {
        using 250 for distance to be considered max power
      */
     public void castSpell(double distance, double angle) {
+        String action;
         double projectilePower = distance / 250;
         if (projectilePower > 1)
             projectilePower = 1;
         Log.i(DEBUG_TAG, "castSpell_ (power, angle radians) "+ projectilePower +", " +angle);
+        action = projectilePower+", "+angle;
+        sAction.send(action);
     }
     /*
      * sends desired move to chromecast message interface
+     * TODO - send movement and jump command together
      */
     public void moveChar(){
         String action;
-        float diff = originX - currentX;
-        if(Math.abs(diff) > MOVETHRESH && fingerDown == true) {
-            if (diff > 0) // move left
+        float diffX = originX - currentX;
+        float diffY = originY - currentY; // used to determine if jumped
+        if(Math.abs(diffX) > MOVETHRESH && fingerDown == true) {
+            if (diffX > 0) // move left
                 action = "LEFT";
             else
                 action = "RIGHT";
         }
         else
             action = "STILL";
-        //sAction.send(action);
-        System.out.println("ACTION: " + action);
+
+        sAction.send(action);
+        //System.out.println("ACTION: " + action);
+        // check for jump
+        if (Math.abs(diffY) < MOVETHRESH && fingerDown == true) {
+            action = "JUMP";
+            System.out.println("ACTION: " + action);
+            sAction.send(action);
+        }
     }
 
 }
