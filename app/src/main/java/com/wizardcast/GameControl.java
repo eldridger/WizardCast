@@ -4,18 +4,36 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.os.Build;
 
 public class GameControl extends ActionBarActivity {
 
+    private static final String DEBUG_TAG = "GameControl";
+    private static int width, height;
+    private static final float MOVETHRESH = 30f; // distance between ACTIONDOWN and ACTIONMOVE required to count as movement
+    private static float originX, originY, currentX, currentY;
+    private static float rOriginX, rOriginY, rCurrentX, rCurrentY; // coordinates for right side of screen controls
+    boolean fingerDown = false;
+
+    //private SendAction sAction; // thread that waits to send message to chromecast
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DisplayMetrics metrics = this.getResources().getDisplayMetrics();
+        width = metrics.widthPixels;
+        height = metrics.heightPixels;
+        Log.i(DEBUG_TAG, "resolution "+ width + " " + height);
+        //bsAction = new SendAction();
         setContentView(R.layout.activity_game_control);
 
         if (savedInstanceState == null) {
