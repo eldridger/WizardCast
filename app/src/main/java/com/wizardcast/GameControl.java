@@ -1,21 +1,21 @@
 package com.wizardcast;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.os.Build;
+
+import com.wizardcast.cast.CastHandler;
 
 public class GameControl extends ActionBarActivity {
+    private static final boolean CHROMECAST_MODE = true; // Set to false to test without chromecast connection
     private static final String DEBUG_TAG = "GameControl";
     private static int width, height;
     private static final float MOVETHRESH = 30f; // distance between ACTIONDOWN and ACTIONMOVE required to count as movement
@@ -24,6 +24,8 @@ public class GameControl extends ActionBarActivity {
     long setProjectileDown;
     boolean fingerDown = false;
     private SendAction sAction; // thread that waits to send message to chromecast
+
+    private CastHandler mCastHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,9 @@ public class GameControl extends ActionBarActivity {
         Log.i(DEBUG_TAG, "resolution "+ width + " " + height);
         sAction = new SendAction();
         setContentView(R.layout.activity_game_control);
+
+        //Get the cast handler for sending messages to chromecast
+        mCastHandler = CastHandler.getInstance(getApplicationContext());
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -114,6 +119,7 @@ public class GameControl extends ActionBarActivity {
                 case MotionEvent.ACTION_UP:
                     Log.i(DEBUG_TAG, "MotionEvent_ ACTION_UP " + fingerDown);
                     fingerDown = false;
+                    mCastHandler.sendMessage("ACTION", "RELEASE");
                     break;
 
                 case MotionEvent.ACTION_MOVE:
@@ -176,15 +182,18 @@ public class GameControl extends ActionBarActivity {
         float diffX = originX - currentX;
         float diffY = originY - currentY; // used to determine if jumped
         if(Math.abs(diffX) > MOVETHRESH && fingerDown == true) {
-            if (diffX > 0) // move left
+            if (diffX > 0) { // move left
                 action = "LEFT";
-            else
+                mCastHandler.sendMessage("MOVE", "LEFT");
+            } else {
                 action = "RIGHT";
+                mCastHandler.sendMessage("MOVE", "RIGHT");
+            }
         }
         else
             action = "STILL";
 
-        sAction.send(action);
+        //sAction.send(action);
         //System.out.println("ACTION: " + action);
         // check for jump
         if (Math.abs(diffY) < MOVETHRESH && fingerDown == true) {

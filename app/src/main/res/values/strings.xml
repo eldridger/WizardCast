@@ -16,5 +16,6 @@
     <string name="instructions">INSTRUCTIONS_TEMP</string>
     <string name="namespace">urn:x-cast:com.wizardcast.helloworld</string>
     <string name="title_activity_game_control">GameControl</string>
+    <string name="title_activity_cast_handler">CastHandler</string>
 
 </resources>
