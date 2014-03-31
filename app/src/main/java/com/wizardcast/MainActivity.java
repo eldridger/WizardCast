@@ -1,44 +1,24 @@
 package com.wizardcast;
 
 import android.content.Intent;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.MediaRouteActionProvider;
-import android.support.v7.media.MediaRouteSelector;
-import android.support.v7.media.MediaRouter;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 
-import com.google.android.gms.cast.Cast;
-import com.google.android.gms.cast.CastDevice;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.wizardcast.cast.CastHandler;
 
 public class MainActivity extends ActionBarActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final String APP_ID = "5F455926";
-    private GLSurfaceView glSurfaceView;
-    private MediaRouter mMediaRouter;
-    private MediaRouteSelector mMediaRouteSelector;
-    private MediaRouter.Callback mMediaRouterCallback;
-    private CastDevice mSelectedDevice;
     private ImageButton mBtnExit;
     private ImageButton mBtnStart;
     private ImageButton mBtnCast;
-    private GoogleApiClient mApiClient;
-    private Cast.Listener mCastClientListener;
-    private GoogleApiClient.ConnectionCallbacks mConnectionCallbacks;
-    private GoogleApiClient.OnConnectionFailedListener mConnectionFailedListener;
-    private Cast.Listener mCastListener;
-    private boolean mWaitingForReconnect;
-    private boolean mApplicationStarted;
     private CastHandler mCastHandler;
-    //private RealTimeMultiplayer mGameChannel;
 
 
     @Override

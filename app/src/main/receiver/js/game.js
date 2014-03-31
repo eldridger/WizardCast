@@ -1,5 +1,5 @@
 /**
- * Game functions, mostly for handling events.
+ * Game functions, mostly for handling events
  */
 
 
@@ -7,7 +7,7 @@ var cast = window.cast || {};
 
 (function() {
     Game.NAMESPACE = 'urn:x-cast:com.wizardcast.helloworld';
-    Game.TEST_MODE = true; //set to true to test without chromecast
+    Game.TEST_MODE = false; //set to true to test without chromecast
  
 	/**
 	 * Creates a Game Object
@@ -15,10 +15,12 @@ var cast = window.cast || {};
 	 * @constructor
 	 */
 	function Game(board) {
+		var self = this,
+			fired = false;
 		this.mBoard = board;
 		this.mCurrentPlayer = 1;
 
-		if (!Game.TEST_MODE) {
+		//if (!Game.TEST_MODE) {
 			displayDebug('Wizardcast started without test_mode');
 
 			cast.receiver.logger.setLevelValue(0);
@@ -52,18 +54,33 @@ var cast = window.cast || {};
 				statusText: "Application is starting"
 			});
 
-		} else {
+		//} else {
+			//Add keyboard controls to test on browser
+
+			document.addEventListener("keydown", function(event) {
+				if(!fired) {
+					fired = true;
+					self.mBoard.handleEvent(event);
+				}
+
+			}, false);
+			
+			document.addEventListener("keyup", function(event) {
+				fired = false;
+				self.mBoard.handleEvent(event);
+			}, false);
+
+			document.addEventListener("click", function(event) {
+				self.mBoard.handleClick(event);
+			}, false);	
+			//this.mBoard.getContext().canvas.onKeyDown = this.onKeyDown;
 			displayDebug('Wizardcast: TEST_MODE. Chromecast connections disabled');
-		}
+		//}
 
 		displayDebug('Receiver Manager Started');
 
 		this.mBoard.start();
 		displayDebug('Game Started');
-	}
-
-	function setTestMode() {
-
 	}
 
      // utility function to display the text message in the input field
@@ -75,12 +92,12 @@ var cast = window.cast || {};
 
     // Display a debug message in the bottom left of the screen and console
     function displayDebug(text) {
-      console.log(text);
+    	var canvas = document.getElementById('board'),
+    		ctx = canvas.getContext('2d');
 
-      if(Game.TEST_MODE) {
-        //If test_mode, we can just debug through console and don't need this.
-        document.getElementById("debug_message").innerHTML = text;
-      }
+    	ctx.fillText(text, 10, 10);
+     	console.log(text);
+
       //this.castReceiverManager_.setApplicationState(text);
     }
 
@@ -164,6 +181,29 @@ var cast = window.cast || {};
 	            senderId = event.senderId,
 	            obj = JSON.parse(message);
 
+	        //displayDebug(event.type);
+	        displayDebug("command: " + obj.command + "   message: " + obj.message);
+
+	        this.mBoard.handleEvent(event);
+
+	        /*
+	        switch(obj.command) {
+	        	case 'MOVE':
+	        		if (!fired) {
+			        	fired = true;
+			        	this.mBoard.moveCharacter(obj.message);
+	        		}
+		        	break;
+		        case 'ACTION':
+		        	if (obj.message === 'release') {
+		        		fired = false;
+		        	}
+	        }
+	        */
+
+
+	        //TODO: THIS IS WHERE WE WILL PARSE CONTROLS FROM SENDER APP
+
 	        //alert(message);
 	        //console.log('Message [' + event.senderId + ']: ' + event.data);
 	        //displayText("message: "
@@ -174,7 +214,7 @@ var cast = window.cast || {};
 	            // display the message from the sender
 	            //displayText(obj.text);
 	        //}
-	        displayText(message);
+	        //displayText(message);
 	        // inform all senders on the CastMessageBus of the incoming message event
 	        // sender message listener will be invoked
 	        window.messageBus.send(event.senderId, event.data);

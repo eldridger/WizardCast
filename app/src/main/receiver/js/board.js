@@ -1,32 +1,34 @@
 /*
 
 	This is where drawing and animations and such will occur.
-k
+
 */
 
 var cast = window.cast || {};
 
 (function() {
 	Board.INTERVAL = 1000 / 60; //ms
+
+	// -1 = empty, 0 = ground
 	Board.levelOne = [
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0, -1,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0, -1,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
 		[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
 		[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
@@ -39,37 +41,54 @@ var cast = window.cast || {};
 	 * @constructor
 	*/
 	function Board(context) {
-		var self = this;
+		var self = this,
+			i;
+
+		this.isShooting = false;
+		this.isMoving = false;
+		this.mCurrentLevel = Board.levelOne;
 		this.needsUpdate = true;
 		this.mContext = context;
-		console.log("context: " + this.mContext);
+		this.mImages = [];
 
 		loadImages();
 
-		//preload image files and set flags
-		//this.bgImage = new Image();
-		//this.tileSetImage = new Image();
-		//this.bgReady = false;
-		//this.tileSetReady = false;
-
-		//this.bgImage.src = "images/background.png";
-		//this.tileSetImage.src = 'images/tile_sheet.png';
-
 		this.characterOne = {
-			speed : 256,
-			x     : 0,
-			y     : 0
+			id      : 'character',
+			destroy : false,
+			sprite  : sprites.wizard,
+			health  : 100,
+			speed   : 5,
+			x       : 0, //LEFT
+			y       : 0 //TOP
 		};
+
 		this.characterTwo = {
-			speed : 256,
-			x     : 0,
-			y     : 0
+			sprite : sprites.wizard,
+			speed  : 5,
+			x      : 0,
+			y      : 0
 		};
+
+		this.currentPlayer = this.characterOne;
+		this.generateLevel(this.mCurrentLevel);
+
+		//Find Start location for character one
+		for ( i = 0; i < this.mCurrentLevel.length && this.characterOne.y === 0; i++) {
+			if (this.mCurrentLevel[i][0] > -1) {
+				this.characterOne.y = (32 * i) - this.characterOne.sprite.height;
+			}
+		}
+
+		this.mImages.push(this.characterOne);
 
 	}
 
 	Board.prototype = {
 
+		/**
+		 * Start the game loop
+		 */
 		start: function() {
 			var self = this;
 			setInterval(
@@ -81,111 +100,367 @@ var cast = window.cast || {};
 
 		},
 
-		render: function() {
-			var tempCanvas = document.createElement('canvas'),
-				tempContext = tempCanvas.getContext('2d'),
-				canvas = document.getElementById('board'),
-				background = sprites.background;
+		/**
+		 * Function to bind to the click listener TODO: will have to be modified to handle chromecast input
+		 * @param {Event} event the click event
+		 */
+		handleClick : function(event) {
+			var x, y;
 
-			tempCanvas.width = canvas.width;
-			tempCanvas.height = canvas.height;
+			x = event.pageX - 25; // to allign with tip of mouse pointer
+			y = event.pageY - 25;
+			if (!this.isShooting) {
+				this.shoot(x, y);
+			}
+		},
+
+		/** 
+		 * Handler for movement events
+		 * @param {String} event JSON string formatted event information
+		 */
+		handleEvent : function(event) {
+			//Eventually will parse JSON from game.onMessage
+			var self = this,
+				sprite = this.currentPlayer.sprite,
+				type = event.type,
+				keyCode = event.keyCode,
+
+				//keycodes for keyboard buttons
+				left  = 37,
+				up    = 38,
+				right = 39,
+				down  = 40,
+				message, obj;
+
+			//If the event comes from chromecast
+			if(type === 'message') {
+				message = event.data;
+				obj = JSON.parse(message);
+
+				switch(obj.command) {
+					case 'MOVE':
+						//We start and stop moving with one event each and don't need the events in between
+						if(!this.isMoving) {
+							this.isMoving = true;
+							type = 'keydown';
+							keyCode = obj.message;
+						} else {
+							type = 'skip';
+						}
+						break;
+					case 'ACTION':
+						if(obj.message === 'RELEASE') {
+							this.isMoving = false;
+							type = 'keyup';
+						}
+						break;
+					case 'SHOOT':
+						this.shoot(obj.data.power, obj.data.angle);
+						break;
+					default:
+						break;
+
+				}
+			}
+
+			if(type === 'keydown') {
+				sprite.walk();
+
+				this.keydownId = setInterval(
+					function() {
+						switch(keyCode){
+							case 'LEFT':
+							case left:
+								self.moveCharacter('left');
+								break;
+							case 'RIGHT':
+							case right:
+								self.moveCharacter('right');
+								break;
+							case 'UP':
+							case up:
+								break;
+							case 'DOWN':
+							case down:
+								break;
+						}
+
+					}, Board.INTERVAL);
+
+			} else if (type === 'keyup') {
+				clearInterval(this.keydownId);
+				sprite.stopWalk();
+			}
+		},
+
+		/**
+		 * Move the character
+		 * @param {Object} character object with sprite, x, y, etc.
+		 * @param {String} direction
+		 */
+		moveCharacter : function (direction) {
+			var character = this.currentPlayer,
+				wizard = this.currentPlayer.sprite,
+				level = this.mCurrentLevel,
+				xOffset = 0,
+				yOffset = 0;
+
+			if(wizard.ready) {
+
+				if (direction === 'right') {
+					xOffset = (wizard.width / 2); //Right bound
+					yOffset = (wizard.height / 2) - 1; //Bottom
+
+					if(!this.detectCollision(wizard,
+						character.x + character.speed, character.y, xOffset, yOffset)) {
+
+							character.x += character.speed;
+							this.moveCharacter(); //Detect drop
+					}
+
+				} else if (direction === 'left') {
+					xOffset = -1 * (wizard.width / 2); //Left bound
+					yOffset = (wizard.height / 2) - 1; //Bottom
+
+					if(!this.detectCollision(wizard,
+						character.x - character.speed, character.y, xOffset, yOffset)) {
+
+							character.x -= character.speed;
+							this.moveCharacter(); //Detect drop
+					}
+
+				} else { //no direction
+					yOffset = (wizard.height / 2); //Bottom bound
+
+					if(!this.detectCollision(wizard,
+						character.x, character.y + character.speed, xOffset, yOffset)) {
+
+							character.y += character.speed;
+							this.moveCharacter(); //Detect drop
+					}
+				}
+
+			}
+
+		},
+
+		/**
+		 * Shoot a Projectile TODO: will have to be modified to handle chromecast input
+		 * @param {int} clickX x coordinate of click event
+		 * @param {int} clickY y coordinate of click event
+		 */
+		shoot: function(clickX, clickY) {
+			//TODO: change parameters to angle and power for chromecast input.
+			var self = this,
+				intervalId,
+				//Change later when CharacterTwo is implemented
+				distanceX =  clickX - this.characterOne.x,
+				distanceY = clickY - this.characterOne.y,
+				distance = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY))
+				angle = Math.atan2(distanceY, distanceX),
+				velocity = distance / 400, //When chromecast controls are implemented this will be set by flick
+				gravity = .1,
+				spell = {
+					id      : 'fireball',
+					destroy : true,
+					sprite  : sprites.fireball,
+					speed   : 5,
+					startX  : this.characterOne.x,
+					startY  : this.characterOne.y,
+					x       : this.characterOne.x,
+					y       : this.characterOne.y
+				};
+
+			this.isShooting = true;
+			this.mImages.push(spell);
+
+			intervalId = setInterval(
+				function() {
+					var xSpeed = velocity * Math.cos(angle),
+						ySpeed = velocity * Math.sin(angle);
+
+					spell.x = spell.x + (xSpeed * spell.speed);
+					spell.y = spell.y + (ySpeed * spell.speed);
+					spell.y += gravity;
+					gravity += .1;
+
+					if (self.detectCollision(spell.sprite, spell.x, spell.y)) {
+						clearInterval(intervalId);
+						self.isShooting = false;
+					}
+				}, Board.INTERVAL);
+		},
+
+		/**
+		 * check if the tile at {x, y} is empty or not
+		 * @param {int} x x coord
+		 * @param {int} y y coord
+		 */
+		detectCollision : function(sprite, x, y, xOffset, yOffset) {
+			var level = this.mCurrentLevel,
+				tile = -1,
+				row, col;
+
+			if (typeof xOffset !== 'undefined') {
+				x = x + xOffset;
+			}
+			if (typeof yOffset !== 'undefined') {
+				y = y + yOffset;
+			}
+
+			//If offsets are not defined, these refer to the middle of a tile
+			row = Math.floor((y + (sprite.height / 2)) / 32);
+			col = Math.floor((x + (sprite.width / 2)) / 32);
+
+			if (typeof level[row] !== 'undefined' && typeof level[row][col] !== 'undefined') {
+				tile = level[row][col];
+			} else {
+				//Out of screen
+				for(i in this.mImages) {                //Remove spell
+					if (this.mImages[i].id === 'fireball') {
+						this.mImages.splice(i, 1);
+					}
+				}
+				return true;
+			}
+
+			if (tile > -1) {
+
+				if (sprite.destroy) {
+
+					this.mCurrentLevel[row][col] = -1;       //Remove tile
+					this.generateLevel(this.mCurrentLevel); //Update Level
+
+					for(i in this.mImages) {                //Remove spell
+						if (this.mImages[i].id === 'fireball') {
+							this.mImages.splice(i, 1);
+						}
+					}
+				}
+				return true;
+			}
+			return false;
+		},
+
+		/**
+		 * Renders background, level, and all objects to the screen
+		 */
+		render: function() {
+			var background = sprites.background,
+				ground = sprites.groundTile,
+				tileWidth = ground.width,
+				tileHeight = ground.height,
+			tempCanvas, tempContext, canvas, tileRow, tileCol, currTile, sprite;
 
 			if(background.ready) {
-				//Draw to temp context first (double buffering)
-				tempContext.drawImage(background.image, 0, 0);
-				this.generateLevel(tempContext, Board.levelOne);
-				this.testAnimation(tempContext, Board.levelOne);
 
+				//Setup Temp canvas for double buffering
+				tempCanvas = document.createElement('canvas');
+				tempContext = tempCanvas.getContext('2d');
+				canvas = document.getElementById('board');
+				tempCanvas.width = canvas.width;
+				tempCanvas.height = canvas.height;
+
+				//Draw Background
+				tempContext.drawImage(background.image, 0, 0);
+
+				//Draw Level Array
+				for (r = 0; r < this.mCurrentLevel.length; r++) {
+					for (c = 0; c < this.mCurrentLevel[0].length; c++) {
+
+						currTile = this.mCurrentLevel[r][c];
+						tileRow = (currTile / ground.totalFrames) | 0; //Bitwise OR = Math.floor
+						tileCol = (currTile % ground.totalFrames) | 0;
+
+						tempContext.drawImage(sprites.groundTile.image,
+							tileCol * tileWidth, tileRow * tileHeight, tileWidth, tileHeight,
+							(c * tileWidth), (r * tileHeight), tileWidth, tileHeight 
+						);
+
+					}
+				}
+
+				//Draw images
+				for (obj in this.mImages) {
+					sprite = this.mImages[obj].sprite;
+					if (sprite.ready) {
+						tileRow = (sprite.frame / sprite.totalFrames) | 0; //Bitwise OR = Math.floor
+						tileCol = (sprite.frame % sprite.totalFrames) | 0;
+						tempContext.drawImage(sprite.image,
+							tileCol * sprite.width, tileRow * sprite.height, 
+							sprite.width, sprite.height, 
+							this.mImages[obj].x, this.mImages[obj].y, 
+							sprite.width, sprite.height  
+						);
+
+					}
+				}
+
+				//Draw temp canvas to real canvas
 				this.mContext.drawImage(tempCanvas, 0, 0);
 			}
 		},
 
-		testAnimation: function(context, level) {
-			//basic collision detection up in here
-			var wizard = sprites.wizard,
-			row, col, tileUnderCharacter;
-			if(wizard.ready) {
-				row = ((this.characterOne.y + 64) / 32) | 0;
-				col = ((this.characterOne.x) + 32) / 32 | 0;
-				tileUnderCharacter = level[row][col-1];
-
-				this.drawSprite(context, wizard, this.characterOne);
-				
-				if(tileUnderCharacter < 0) {
-					//If not a factor of 32, it does not line up to tiles well.
-					this.characterOne.y += 8;
-				} else {
-					this.needsUpdate = false;
-				}
-			}
-		},
-
-		drawSprite : function(context, sprite, character) {
-			context.drawImage(sprite.image,
-				0, 0, //temp. hardcoded
-				sprite.width, sprite.height, character.x, character.y,
-				sprite.width, sprite.height);
-		},
-
-		generateLevel: function(context, level) {
-			var self = this,
-				ground = sprites.groundTile,
-				width = ground.width,
-				height = ground.height,
-				tileSize = 32,
-				rowTileCount = level.length,
+		/**
+		 * Generate level tiles and write them to mCurrentLevel array
+		 * @param {Array} 2D array with Level info
+		 */
+		generateLevel : function(level) {
+			var rowTileCount = level.length,
 				colTileCount = level[0].length,
-				imageNumTiles = ground.tilesPerRow,
 				tile = 0, tileLeft = -1, tileRight = -1,
 				tileAbove = -1, tileBelow = -1,
-				tileRow, tileCol, c, r
+				c, r;
 
-			if(ground.ready) {
-				for (r = 0; r < rowTileCount; r++) {
-					for (c = 0; c < colTileCount; c++) {
-						//see ground_tile_reference for map
-						tile = level[r][c];
+			for (r = 0; r < rowTileCount; r++) {
+				for (c = 0; c < colTileCount; c++) {
+					//see ground_tile_reference for map
+					tile = level[r][c];
 
-						if (tile !== -1) {
-							tileBelow = (typeof (level[r+1])    !=='undefined') ? level[r+1][c] : -1;
-							tileAbove = (typeof (level[r-1])    !=='undefined') ? level[r-1][c] : -1;
-							tileRight = (typeof (level[r][c+1]) !=='undefined') ? level[r][c+1] : -1;
-							tileLeft  = (typeof (level[r][c-1]) !=='undefined') ? level[r][c-1] : -1;
+					if (tile !== -1) {
 
-							if (tileAbove === -1 && tileLeft === -1 && tileRight === -1) {
-								tile = 4;
-							}  else if (tileAbove === -1 && tileRight === -1) {
-								tile = 7;
-							} else if (tileAbove === -1 && tileLeft === -1) {
-								tile = 5;
-							} else if (tileAbove === -1) {
-								tile = 6;
-							} else if (tileBelow === -1 && tileLeft === -1 && tileRight === -1) {
-								tile = 1;
-							} else if (tileBelow === -1 && tileLeft === -1) {
-								tile = 9;
-							} else if (tileBelow === -1 && tileRight === -1) {
-								tile = 11;
-							} else if (tileBelow === -1) {
-								tile = 10;
-							} else if (tileLeft === -1) {
-								tile = 12;
-							} else if (tileRight === -1) {
-								tile = 13;
-							}
+						tileBelow = (typeof (level[r+1])    !== 'undefined') ? level[r+1][c] : -1;
+						tileAbove = (typeof (level[r-1])    !== 'undefined') ? level[r-1][c] : -1;
+						tileRight = (typeof (level[r][c+1]) !== 'undefined') ? level[r][c+1] : -1;
+						tileLeft  = (typeof (level[r][c-1]) !== 'undefined') ? level[r][c-1] : -1;
 
-
-							// row/col of tile reference
-							tileRow = (tile / imageNumTiles) | 0; //Bitwise OR = Math.floor
-							tileCol = (tile % imageNumTiles) | 0;
-
-							context.drawImage(ground.image, (tileCol * tileSize),
-									(tileRow * tileSize), tileSize, tileSize, (c*tileSize),
-									(r*tileSize), tileSize, tileSize);
+						if (tileAbove === -1 && tileLeft === -1 && tileRight === -1) {
+							tile = 4;
+						}  else if (tileAbove === -1 && tileRight === -1) {
+							tile = 7;
+						} else if (tileAbove === -1 && tileLeft === -1) {
+							tile = 5;
+						} else if (tileAbove === -1) {
+							tile = 6;
+						} else if (tileBelow === -1 && tileLeft === -1 && tileRight === -1) {
+							tile = 1;
+						} else if (tileBelow === -1 && tileLeft === -1) {
+							tile = 9;
+						} else if (tileBelow === -1 && tileRight === -1) {
+							tile = 11;
+						} else if (tileBelow === -1) {
+							tile = 10;
+						} else if (tileLeft === -1) {
+							tile = 12;
+						} else if (tileRight === -1) {
+							tile = 13;
 						}
+
+						//set tile
+						this.mCurrentLevel[r][c] = tile;
 					}
 				}
 			}
+
+			this.moveCharacter(this.characterOne); //Update Character
+		},
+
+		/**
+		 * Get Context
+		 * @return {CanvasRenderingContext2D} 
+		 */
+		getContext : function() {
+			return this.mContext;
 		}
 
 	}; //end prototype
