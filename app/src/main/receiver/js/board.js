@@ -49,26 +49,14 @@ var cast = window.cast || {};
 		this.mCurrentLevel = Board.levelOne;
 		this.needsUpdate = true;
 		this.mContext = context;
-		this.mImages = [];
+		this.mProjectiles = [];
+		this.mCharacters = [];
 
 		loadImages();
 
-		this.characterOne = {
-			id      : 'character',
-			destroy : false,
-			sprite  : sprites.wizard,
-			health  : 100,
-			speed   : 5,
-			x       : 0, //LEFT
-			y       : 0 //TOP
-		};
-
-		this.characterTwo = {
-			sprite : sprites.wizard,
-			speed  : 5,
-			x      : 0,
-			y      : 0
-		};
+		this.characterOne = new Character(sprites.wizard);
+		this.characterTwo = new Character(sprites.wizard, true);
+		this.characterTwo.x = (this.mCurrentLevel[0].length - 1) * 32;
 
 		this.currentPlayer = this.characterOne;
 		this.generateLevel(this.mCurrentLevel);
@@ -78,9 +66,14 @@ var cast = window.cast || {};
 			if (this.mCurrentLevel[i][0] > -1) {
 				this.characterOne.y = (32 * i) - this.characterOne.sprite.height;
 			}
+
+			if (this.mCurrentLevel[i][this.mCurrentLevel[0].length - 1] > -1) {
+				this.characterTwo.y = (32 * i) - this.characterTwo.sprite.height;
+			}
 		}
 
-		this.mImages.push(this.characterOne);
+		this.mCharacters.push(this.characterOne);
+		this.mCharacters.push(this.characterTwo);
 
 	}
 
@@ -164,7 +157,7 @@ var cast = window.cast || {};
 			}
 
 			if(type === 'keydown') {
-				sprite.walk();
+				this.currentPlayer.walk();
 
 				this.keydownId = setInterval(
 					function() {
@@ -189,7 +182,7 @@ var cast = window.cast || {};
 
 			} else if (type === 'keyup') {
 				clearInterval(this.keydownId);
-				sprite.stopWalk();
+				this.currentPlayer.stopWalk();
 			}
 		},
 
@@ -250,29 +243,21 @@ var cast = window.cast || {};
 		 * @param {int} clickY y coordinate of click event
 		 */
 		shoot: function(clickX, clickY) {
-			//TODO: change parameters to angle and power for chromecast input.
+			//TODO: change parameters to angle and power for chromecast input.g
 			var self = this,
 				intervalId,
 				//Change later when CharacterTwo is implemented
-				distanceX =  clickX - this.characterOne.x,
-				distanceY = clickY - this.characterOne.y,
+				distanceX =  clickX - this.currentPlayer.x,
+				distanceY = clickY - this.currentPlayer.y,
 				distance = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY))
 				angle = Math.atan2(distanceY, distanceX),
 				velocity = distance / 400, //When chromecast controls are implemented this will be set by flick
 				gravity = .1,
-				spell = {
-					id      : 'fireball',
-					destroy : true,
-					sprite  : sprites.fireball,
-					speed   : 5,
-					startX  : this.characterOne.x,
-					startY  : this.characterOne.y,
-					x       : this.characterOne.x,
-					y       : this.characterOne.y
-				};
+
+				spell = new Spell('fireball', this.currentPlayer.x, this.currentPlayer.y);
 
 			this.isShooting = true;
-			this.mImages.push(spell);
+			this.mProjectiles.push(spell);
 
 			intervalId = setInterval(
 				function() {
@@ -284,17 +269,44 @@ var cast = window.cast || {};
 					spell.y += gravity;
 					gravity += .1;
 
-					if (self.detectCollision(spell.sprite, spell.x, spell.y)) {
+					if (self.detectCollision(spell.sprite, spell.x, spell.y) || self.detectHit(spell)) {
+
 						clearInterval(intervalId);
 						self.isShooting = false;
+						for(i in self.mProjectiles) {                //Remove spell
+							if (self.mProjectiles[i].id === 'spell') {
+								self.mProjectiles.splice(i, 1);
+								//TODO: Make this the current spell in case there is a splitting spell w/ mult. projectiles
+							}
+						}
 					}
 				}, Board.INTERVAL);
 		},
 
 		/**
+		 * Check if the tile at {x,y} has hit another character.
+		 * @param {Object} spell The spell being casted
+		 */
+		detectHit : function(spell) {
+			var character;
+			for (i in this.mCharacters) {
+				character = this.mCharacters[i];
+				if (spell.x > character.x && spell.x < character.x + character.sprite.width) {
+					if(spell.y > character.y && spell.y < character.y + character.sprite.width) {
+						character.health -= spell.damage;
+						return true;
+					}
+				}
+			}
+			return false;
+		},
+		
+
+		/**
 		 * check if the tile at {x, y} is empty or not
 		 * @param {int} x x coord
 		 * @param {int} y y coord
+		 * @return {boolean} true if hit, false if no hit
 		 */
 		detectCollision : function(sprite, x, y, xOffset, yOffset) {
 			var level = this.mCurrentLevel,
@@ -316,26 +328,13 @@ var cast = window.cast || {};
 				tile = level[row][col];
 			} else {
 				//Out of screen
-				for(i in this.mImages) {                //Remove spell
-					if (this.mImages[i].id === 'fireball') {
-						this.mImages.splice(i, 1);
-					}
-				}
 				return true;
 			}
 
 			if (tile > -1) {
-
 				if (sprite.destroy) {
-
 					this.mCurrentLevel[row][col] = -1;       //Remove tile
 					this.generateLevel(this.mCurrentLevel); //Update Level
-
-					for(i in this.mImages) {                //Remove spell
-						if (this.mImages[i].id === 'fireball') {
-							this.mImages.splice(i, 1);
-						}
-					}
 				}
 				return true;
 			}
@@ -380,20 +379,13 @@ var cast = window.cast || {};
 					}
 				}
 
-				//Draw images
-				for (obj in this.mImages) {
-					sprite = this.mImages[obj].sprite;
-					if (sprite.ready) {
-						tileRow = (sprite.frame / sprite.totalFrames) | 0; //Bitwise OR = Math.floor
-						tileCol = (sprite.frame % sprite.totalFrames) | 0;
-						tempContext.drawImage(sprite.image,
-							tileCol * sprite.width, tileRow * sprite.height, 
-							sprite.width, sprite.height, 
-							this.mImages[obj].x, this.mImages[obj].y, 
-							sprite.width, sprite.height  
-						);
-
-					}
+				//Draw projectiles
+				for (obj in this.mProjectiles) {
+					this.mProjectiles[obj].draw(tempContext);
+				}
+				//Draw characters
+				for (obj in this.mCharacters) {
+					this.mCharacters[obj].draw(tempContext);
 				}
 
 				//Draw temp canvas to real canvas
