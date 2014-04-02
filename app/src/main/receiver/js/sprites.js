@@ -1,5 +1,5 @@
 
-var INTERVAL = 200,
+var ANIMATION_INTERVAL = 50,
 sprites = {
 
 
@@ -10,14 +10,15 @@ sprites = {
 	},
 
 	fireball : {
-		image   : null,
-		destroy : true,
-		ready   : false,
-		source  : 'images/tile_sheet.png',
-		width   :  32,
-		height  :  32,
-		frame   :  3,
-		totalFrames : 2 //rows
+		image     : null,
+		destroy   : true,
+		ready     : false,
+		source    : 'images/fireball.png',
+		width     :  32,
+		height    :  32,
+		frame     :  0,
+		framesRow :  4,
+		totalFrames : 20 //rows
 	},
 
 	wizard : {
@@ -26,7 +27,8 @@ sprites = {
 		source       : 'images/wizard_sheet.png',
 		width        : 32,
 		height       : 64,
-		totalFrames  : 3, //rows
+		totalFrames  : 3,
+		framesRow    : 3,
 		animate      : false,
 		flip         : function() {
 			//TODO: make a flipped version of the sprite sheet
@@ -72,17 +74,17 @@ function Character(sprite, isFlipped) {
 		var self = this;
 		this.frame += 1;
 
-		this.id = setInterval(function() {
-			if (self.frame === self.sprite.totalFrames - 1) {
+		this.walkId = setInterval(function() {
+			if (self.frame === self.sprite.framesRow - 1) {
 				self.frame = 0;
 			} else {
 				self.frame += 1;
 			}
-		}, INTERVAL);
+		}, ANIMATION_INTERVAL);
 	};
 
 	this.stopWalk = function () {
-		clearInterval(this.id);
+		clearInterval(this.walkId);
 		this.frame = 0;
 	};
 
@@ -110,7 +112,7 @@ function Spell(type, startX, startY) {
 	this.id = 'spell';
 	this.x = startX;
 	this.y = startY;
-	this.speed = 5;
+	this.speed = 10;
 	this.damage = 5;
 
 	switch(type) {
@@ -123,6 +125,28 @@ function Spell(type, startX, startY) {
 	//destroys tiles on collision. Maybe make this a function when diff. spells are implemented.
 	this.destroy = true;
 	this.draw = draw;
+
+	this.explode = function(callback) {
+		var self = this;
+
+		self.frame = 4;
+		self.explodeId = setInterval(function() {
+			//if (self.frame === self.sprite.framesRow - 1) {
+		//		self.frame = 0;
+		//	} else {
+				self.frame += 1;
+		//	}
+
+			if(self.frame > self.sprite.totalFrames) {
+				clearInterval(self.explodeId);
+
+				if(typeof callback !== 'undefined') {
+					callback();
+				}
+			}
+		}, ANIMATION_INTERVAL / 2);
+
+	}
 
 }
 
@@ -137,8 +161,8 @@ function draw(context, object) {
 	self = (typeof object !== 'undefined') ? object : this;
 
 	sprite = self.sprite,
-	frameRow = (self.frame / sprite.totalFrames) | 0,
-	frameCol = (self.frame % sprite.totalFrames) | 0;
+	frameRow = (self.frame / sprite.framesRow) | 0,
+	frameCol = (self.frame % sprite.framesRow) | 0;
 	if (sprite.ready) {
 		context.drawImage(sprite.image,
 			frameCol * sprite.width, frameRow * sprite.height, 

@@ -7,7 +7,9 @@
 var cast = window.cast || {};
 
 (function() {
-	Board.INTERVAL = 1000 / 60; //ms
+	Board.mShowTestVersion = '1.0'; //Change to see if new files are loaded on Drive yet.
+	Board.FPS = 60;
+	Board.INTERVAL = 1000 / Board.FPS; //ms
 
 	// -1 = empty, 0 = ground
 	Board.levelOne = [
@@ -98,12 +100,30 @@ var cast = window.cast || {};
 		 * @param {Event} event the click event
 		 */
 		handleClick : function(event) {
-			var x, y;
+			var player = this.currentPlayer,
+				x = event.pageX - 25, // to allign with tip of mouse pointer
+				y = event.pageY - 25,
+				distanceX = x - this.currentPlayer.x,
+				distanceY = y - this.currentPlayer.y,
+				distance = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY)),
+				angle = Math.atan2(distanceY, distanceX),
+				spell;
 
-			x = event.pageX - 25; // to allign with tip of mouse pointer
-			y = event.pageY - 25;
 			if (!this.isShooting) {
-				this.shoot(x, y);
+				spell = new Spell('fireball', player.x, player.y);
+				this.shoot(spell, angle, distance, this.switchPlayer);
+			}
+		},
+
+		/** 
+		 * End a players turn and move to the next player
+		 */
+		switchPlayer : function(self) {
+			self = typeof self === 'undefined' ? this : self;
+			if(self.currentPlayer === self.characterOne) {
+				self.currentPlayer = self.characterTwo;
+			} else if (self.currentPlayer === self.characterTwo) {
+				self.currentPlayer = self.characterOne;
 			}
 		},
 
@@ -123,12 +143,13 @@ var cast = window.cast || {};
 				up    = 38,
 				right = 39,
 				down  = 40,
-				message, obj;
+				message, innerMessage, obj, spell;
 
 			//If the event comes from chromecast
 			if(type === 'message') {
 				message = event.data;
 				obj = JSON.parse(message);
+				//this.displayDebug(obj.command + "    " + obj.message);
 
 				switch(obj.command) {
 					case 'MOVE':
@@ -148,7 +169,12 @@ var cast = window.cast || {};
 						}
 						break;
 					case 'SHOOT':
-						this.shoot(obj.data.power, obj.data.angle);
+						innerMessage = JSON.parse(obj.message);
+						//TODO: type of spell will eventually be sent from android
+						spell = new Spell('fireball', this.currentPlayer.x, this.currentPlayer.y);
+						this.shoot(spell, innerMessage.angle, innerMessage.power);
+						this.displayDebug('distance: ' + JSON.parse(obj.message).power + " angle: " + innerMessage.angle);
+
 						break;
 					default:
 						break;
@@ -164,11 +190,11 @@ var cast = window.cast || {};
 						switch(keyCode){
 							case 'LEFT':
 							case left:
-								self.moveCharacter('left');
+								self.moveCharacter(self.currentPlayer, 'left');
 								break;
 							case 'RIGHT':
 							case right:
-								self.moveCharacter('right');
+								self.moveCharacter(self.currentPlayer, 'right');
 								break;
 							case 'UP':
 							case up:
@@ -191,9 +217,8 @@ var cast = window.cast || {};
 		 * @param {Object} character object with sprite, x, y, etc.
 		 * @param {String} direction
 		 */
-		moveCharacter : function (direction) {
-			var character = this.currentPlayer,
-				wizard = this.currentPlayer.sprite,
+		moveCharacter : function (character, direction) {
+			var wizard = character.sprite,
 				level = this.mCurrentLevel,
 				xOffset = 0,
 				yOffset = 0;
@@ -201,35 +226,30 @@ var cast = window.cast || {};
 			if(wizard.ready) {
 
 				if (direction === 'right') {
-					xOffset = (wizard.width / 2); //Right bound
-					yOffset = (wizard.height / 2) - 1; //Bottom
+					xOffset = (wizard.width) + character.speed; //Right bound + speed
 
-					if(!this.detectCollision(wizard,
-						character.x + character.speed, character.y, xOffset, yOffset)) {
+					if(!this.detectCollision(character, xOffset, yOffset)) {
 
 							character.x += character.speed;
-							this.moveCharacter(); //Detect drop
+							this.moveCharacter(character); //Detect drop
 					}
 
 				} else if (direction === 'left') {
-					xOffset = -1 * (wizard.width / 2); //Left bound
-					yOffset = (wizard.height / 2) - 1; //Bottom
+					xOffset = -1 * (wizard.width / 2) + character.speed;; //Left bound + speed
 
-					if(!this.detectCollision(wizard,
-						character.x - character.speed, character.y, xOffset, yOffset)) {
+					if(!this.detectCollision(character, xOffset, yOffset)) {
 
 							character.x -= character.speed;
-							this.moveCharacter(); //Detect drop
+							this.moveCharacter(character); //Detect drop
 					}
 
 				} else { //no direction
 					yOffset = (wizard.height / 2); //Bottom bound
 
-					if(!this.detectCollision(wizard,
-						character.x, character.y + character.speed, xOffset, yOffset)) {
+					if(!this.detectCollision(character, xOffset, yOffset)) {
 
 							character.y += character.speed;
-							this.moveCharacter(); //Detect drop
+							this.moveCharacter(character); //Detect drop
 					}
 				}
 
@@ -237,50 +257,43 @@ var cast = window.cast || {};
 
 		},
 
-		/**
-		 * Shoot a Projectile TODO: will have to be modified to handle chromecast input
-		 * @param {int} clickX x coordinate of click event
-		 * @param {int} clickY y coordinate of click event
-		 */
-		shoot: function(clickX, clickY) {
-			//TODO: change parameters to angle and power for chromecast input.g
+		shoot : function(spell, angle, power, callback) {
 			var self = this,
 				intervalId,
-				//Change later when CharacterTwo is implemented
-				distanceX =  clickX - this.currentPlayer.x,
-				distanceY = clickY - this.currentPlayer.y,
-				distance = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY))
-				angle = Math.atan2(distanceY, distanceX),
-				velocity = distance / 400, //When chromecast controls are implemented this will be set by flick
-				gravity = .1,
-
-				spell = new Spell('fireball', this.currentPlayer.x, this.currentPlayer.y);
+				velocity = power / 400,
+				xSpeed = velocity * Math.cos(angle),
+				ySpeed = velocity * Math.sin(angle),
+				gravity = .1;
 
 			this.isShooting = true;
 			this.mProjectiles.push(spell);
 
 			intervalId = setInterval(
 				function() {
-					var xSpeed = velocity * Math.cos(angle),
-						ySpeed = velocity * Math.sin(angle);
 
 					spell.x = spell.x + (xSpeed * spell.speed);
 					spell.y = spell.y + (ySpeed * spell.speed);
 					spell.y += gravity;
 					gravity += .1;
 
-					if (self.detectCollision(spell.sprite, spell.x, spell.y) || self.detectHit(spell)) {
+					//Give it a few milliseconds because the spell starts under char.
+					setTimeout(function() {
+						if (self.detectCollision(spell) || self.detectHit(spell)) {
 
-						clearInterval(intervalId);
-						self.isShooting = false;
-						for(i in self.mProjectiles) {                //Remove spell
-							if (self.mProjectiles[i].id === 'spell') {
-								self.mProjectiles.splice(i, 1);
-								//TODO: Make this the current spell in case there is a splitting spell w/ mult. projectiles
-							}
+							clearInterval(intervalId);
+
+							spell.explode(function() {
+								self.remove(spell, self.mProjectiles);
+
+								self.isShooting = false;
+
+								if(typeof callback !== 'undefined') {
+									callback(self);
+								}
+							});
 						}
-					}
-				}, Board.INTERVAL);
+					}, 1000);
+			}, Board.INTERVAL);
 		},
 
 		/**
@@ -308,8 +321,11 @@ var cast = window.cast || {};
 		 * @param {int} y y coord
 		 * @return {boolean} true if hit, false if no hit
 		 */
-		detectCollision : function(sprite, x, y, xOffset, yOffset) {
-			var level = this.mCurrentLevel,
+		detectCollision : function(entity, xOffset, yOffset) {
+			var sprite = entity.sprite,
+				x = entity.x,
+				y = entity.y,
+				level = this.mCurrentLevel,
 				tile = -1,
 				row, col;
 
@@ -390,6 +406,10 @@ var cast = window.cast || {};
 
 				//Draw temp canvas to real canvas
 				this.mContext.drawImage(tempCanvas, 0, 0);
+
+				if(typeof Board.mShowTestVersion !== 'undefined') {
+					this.displayDebug(Board.mShowTestVersion, 1210, 25);
+				}
 			}
 		},
 
@@ -443,8 +463,25 @@ var cast = window.cast || {};
 					}
 				}
 			}
+			for (i in this.mCharacters) {
+				//Update Characters
+				this.moveCharacter(this.mCharacters[i]);
+			}
 
-			this.moveCharacter(this.characterOne); //Update Character
+		},
+
+		/**
+		 * Remove object from draw array
+		 * @param {Object} object to remove
+		 * @param {Array} array array to remove from
+		 */
+		remove : function (object, array) {
+						
+			for(i in array) {                //Remove spell
+				if (array[i] === object) {
+					array.splice(i, 1);
+				}
+			}
 		},
 
 		/**
@@ -453,7 +490,20 @@ var cast = window.cast || {};
 		 */
 		getContext : function() {
 			return this.mContext;
-		}
+		},
+
+
+	    // Display a debug message in the bottom left of the screen and console
+	    displayDebug : function(text, drawX, drawY) {
+	    	var x = typeof drawX !== 'undefined' ? drawX : 20,
+	    		y = typeof drawY !== 'undefined' ? drawY : 20;
+
+	    	this.mContext.font = '25pt Calibri';
+	    	this.mContext.fillText(text, x, y);
+	     	//console.log(text);
+
+	      //this.castReceiverManager_.setApplicationState(text);
+	    }
 
 	}; //end prototype
 

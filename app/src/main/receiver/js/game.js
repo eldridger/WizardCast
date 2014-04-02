@@ -21,7 +21,7 @@ var cast = window.cast || {};
 		this.mCurrentPlayer = 1;
 
 		//if (!Game.TEST_MODE) {
-			displayDebug('Wizardcast started without test_mode');
+			//this.mBoard.displayDebug('Wizardcast started without test_mode');
 
 			cast.receiver.logger.setLevelValue(0);
 
@@ -74,13 +74,13 @@ var cast = window.cast || {};
 				self.mBoard.handleClick(event);
 			}, false);	
 			//this.mBoard.getContext().canvas.onKeyDown = this.onKeyDown;
-			displayDebug('Wizardcast: TEST_MODE. Chromecast connections disabled');
+			//this.mBoard.displayDebug('Wizardcast: TEST_MODE. Chromecast connections disabled');
 		//}
 
-		displayDebug('Receiver Manager Started');
+		//this.mBoard.displayDebug('Receiver Manager Started');
 
 		this.mBoard.start();
-		displayDebug('Game Started');
+		//this.mBoard.displayDebug('Game Started');
 	}
 
      // utility function to display the text message in the input field
@@ -88,17 +88,6 @@ var cast = window.cast || {};
         console.log(text);
         document.getElementById("message").innerHTML = text;
         window.castReceiverManager.setApplicationState(text);
-    }
-
-    // Display a debug message in the bottom left of the screen and console
-    function displayDebug(text) {
-    	var canvas = document.getElementById('board'),
-    		ctx = canvas.getContext('2d');
-
-    	ctx.fillText(text, 10, 10);
-     	console.log(text);
-
-      //this.castReceiverManager_.setApplicationState(text);
     }
 
 	//Adds event listening functions to Game.prototype
@@ -136,7 +125,7 @@ var cast = window.cast || {};
 		 * @param {event} event the ready event
 		*/
 		onReady: function(event) {
-            displayDebug('Received Ready event: ' + JSON.stringify(event.data));
+            this.mBoard.displayDebug('Received Ready event: ' + JSON.stringify(event.data));
             window.castReceiverManager.setApplicationState("Application status is ready...");
 		},
 
@@ -167,7 +156,7 @@ var cast = window.cast || {};
 		 * @param {event} event the sender volume changed event
 		*/
 		onSystemVolumeChanged: function(event) {
-            displayDebug('Received System Volume Changed event: ' + event.data['level'] + ' ' +
+            this.mBoard.displayDebug('Received System Volume Changed event: ' + event.data['level'] + ' ' +
                 event.data['muted']);
 		},
 
@@ -182,7 +171,7 @@ var cast = window.cast || {};
 	            obj = JSON.parse(message);
 
 	        //displayDebug(event.type);
-	        displayDebug("command: " + obj.command + "   message: " + obj.message);
+	        //this.mBoard.displayDebug("command: " + obj.command + "   message: " + obj.message);
 
 	        this.mBoard.handleEvent(event);
 

@@ -14,6 +14,9 @@ import android.view.ViewGroup;
 
 import com.wizardcast.cast.CastHandler;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class GameControl extends ActionBarActivity {
     private static final boolean CHROMECAST_MODE = true; // Set to false to test without chromecast connection
     private static final String DEBUG_TAG = "GameControl";
@@ -141,7 +144,7 @@ public class GameControl extends ActionBarActivity {
                 case MotionEvent.ACTION_POINTER_UP:
                 case MotionEvent.ACTION_UP:
                     double projectile_power = Math.sqrt(Math.pow((e.getX(pointerIndex) - rOriginX), 2) +  Math.pow((e.getY(pointerIndex) - rOriginY), 2));
-                    double angle = Math.atan2(e.getY(pointerIndex) - rOriginY, e.getX(pointerIndex) - rOriginX)*-1;
+                    double angle = Math.atan2(e.getY(pointerIndex) - rOriginY, e.getX(pointerIndex) - rOriginX);
                     System.out.println ( "motion angle projectile is being fired: " +Math.atan2(e.getY(pointerIndex) - rOriginY, e.getX(pointerIndex) - rOriginX)*-1);
                     System.out.println("projectile distance " + projectile_power);
                     castSpell(projectile_power, angle);
@@ -171,7 +174,17 @@ public class GameControl extends ActionBarActivity {
             projectilePower = 1;
         Log.i(DEBUG_TAG, "castSpell_ (power, angle radians) "+ projectilePower +", " +angle);
         action = projectilePower+", "+angle;
-        sAction.send(action);
+        //sAction.send(action);
+
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("angle", angle);
+            jsonObject.put("power", distance);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mCastHandler.sendMessage("SHOOT", jsonObject.toString());
     }
     /*
      * sends desired move to chromecast message interface
