@@ -1,5 +1,5 @@
 
-var ANIMATION_INTERVAL = 50,
+var ANIMATION_INTERVAL = 100,
 sprites = {
 
 
@@ -112,8 +112,8 @@ function Spell(type, startX, startY) {
 	this.id = 'spell';
 	this.x = startX;
 	this.y = startY;
-	this.speed = 10;
-	this.damage = 5;
+	this.speed = 5;
+	this.damage = 10;
 
 	switch(type) {
 		case 'fireball':
@@ -128,6 +128,7 @@ function Spell(type, startX, startY) {
 
 	this.explode = function(callback) {
 		var self = this;
+		self.destroy = false; //to only do damage once
 
 		self.frame = 4;
 		self.explodeId = setInterval(function() {

@@ -109,7 +109,12 @@ var cast = window.cast || {};
 				angle = Math.atan2(distanceY, distanceX),
 				spell;
 
+				if(distance > 1000) {
+					distance = 1000;
+				}
+
 			if (!this.isShooting) {
+				this.isShooting = true;
 				spell = new Spell('fireball', player.x, player.y);
 				this.shoot(spell, angle, distance, this.switchPlayer);
 			}
@@ -169,11 +174,14 @@ var cast = window.cast || {};
 						}
 						break;
 					case 'SHOOT':
-						innerMessage = JSON.parse(obj.message);
-						//TODO: type of spell will eventually be sent from android
-						spell = new Spell('fireball', this.currentPlayer.x, this.currentPlayer.y);
-						this.shoot(spell, innerMessage.angle, innerMessage.power);
-						this.displayDebug('distance: ' + JSON.parse(obj.message).power + " angle: " + innerMessage.angle);
+						if(!this.isShooting) {
+							this.isShooting = true;
+							innerMessage = JSON.parse(obj.message);
+							//TODO: type of spell will eventually be sent from android
+							spell = new Spell('fireball', this.currentPlayer.x, this.currentPlayer.y);
+							this.shoot(spell, innerMessage.angle, innerMessage.power, this.switchPlayer);
+							this.displayDebug('distance: ' + JSON.parse(obj.message).power + " angle: " + innerMessage.angle);
+						}
 
 						break;
 					default:
@@ -277,6 +285,7 @@ var cast = window.cast || {};
 					gravity += .1;
 
 					//Give it a few milliseconds because the spell starts under char.
+					    //hopefully we won't need this after optimizing for better chromecast performance
 					setTimeout(function() {
 						if (self.detectCollision(spell) || self.detectHit(spell)) {
 
@@ -292,7 +301,7 @@ var cast = window.cast || {};
 								}
 							});
 						}
-					}, 1000);
+					}, 200);
 			}, Board.INTERVAL);
 		},
 
@@ -306,8 +315,10 @@ var cast = window.cast || {};
 				character = this.mCharacters[i];
 				if (spell.x > character.x && spell.x < character.x + character.sprite.width) {
 					if(spell.y > character.y && spell.y < character.y + character.sprite.width) {
-						character.health -= spell.damage;
-						return true;
+						if(spell.destroy) {
+							character.health -= spell.damage;
+							return true;
+						}
 					}
 				}
 			}
