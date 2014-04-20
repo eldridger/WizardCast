@@ -1,14 +1,25 @@
-/**
- * Game functions, mostly for handling events
- */
 
 
 var cast = window.cast || {};
-
+/**
+ * Game functions, mostly for handling events
+ */
 (function() {
+	window.Game = Game;
     Game.NAMESPACE = 'urn:x-cast:com.wizardcast.helloworld';
     Game.TEST_MODE = false; //set to true to test without chromecast
  
+
+	// shim layer with setTimeout fallback
+	window.requestAnimFrame = (function(){
+	  return  window.requestAnimationFrame       ||
+	          window.webkitRequestAnimationFrame ||
+	          window.mozRequestAnimationFrame    ||
+	          function( callback ){
+	            window.setTimeout(callback, 1000 / 60);
+	          };
+	})();
+
 	/**
 	 * Creates a Game Object
 	 * @param {board} board an optional game board
@@ -16,8 +27,11 @@ var cast = window.cast || {};
 	 */
 	function Game(board) {
 		var self = this,
-			fired = false;
-		this.mBoard = board;
+			fired = false,
+            canvas  = document.getElementById('board'),
+            context = canvas.getContext("2d");
+
+		this.mBoard = new cast.Board(context);
 		this.mCurrentPlayer = 1;
 
 		//if (!Game.TEST_MODE) {

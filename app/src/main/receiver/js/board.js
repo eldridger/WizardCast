@@ -8,12 +8,12 @@ var cast = window.cast || {};
 
 (function() {
 	Board.mShowTestVersion = '1.0'; //Change to see if new files are loaded on Drive yet.
-	Board.FPS = 60;
+	Board.FPS = 10;
 	Board.INTERVAL = 1000 / Board.FPS; //ms
 
 	// -1 = empty, 0 = ground
 	Board.levelOne = [
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
@@ -46,9 +46,13 @@ var cast = window.cast || {};
 		var self = this,
 			i;
 
+		this.endGame = false;
+		this.width = document.getElementById('board').width;
+		this.height = document.getElementById('board').height;
 		this.isShooting = false;
 		this.isMoving = false;
-		this.mCurrentLevel = Board.levelOne;
+		this.level = new Level(Board.levelOne);
+		this.mCurrentLevel = this.level.currentLevel;
 		this.needsUpdate = true;
 		this.mContext = context;
 		this.mProjectiles = [];
@@ -56,27 +60,37 @@ var cast = window.cast || {};
 
 		loadImages();
 
-		this.characterOne = new Character(sprites.wizard);
-		this.characterTwo = new Character(sprites.wizard, true);
-		this.characterTwo.x = (this.mCurrentLevel[0].length - 1) * 32;
+		this.playerOne = Game.newPlayer('player1', false);
+		this.playerTwo = Game.newPlayer('player2', true);
 
-		this.currentPlayer = this.characterOne;
-		this.generateLevel(this.mCurrentLevel);
+		this.playerTwo.moveX((this.mCurrentLevel[0].length - 1) * 32);
+
+		this.currentPlayer = this.playerOne;
+		//this.generateLevel(this.mCurrentLevel);
 
 		//Find Start location for character one
-		for ( i = 0; i < this.mCurrentLevel.length && this.characterOne.y === 0; i++) {
-			if (this.mCurrentLevel[i][0] > -1) {
-				this.characterOne.y = (32 * i) - this.characterOne.sprite.height;
-			}
-
-			if (this.mCurrentLevel[i][this.mCurrentLevel[0].length - 1] > -1) {
-				this.characterTwo.y = (32 * i) - this.characterTwo.sprite.height;
+		for ( i = 0; i < this.mCurrentLevel.length && this.playerOne.y === 0; i++) {
+			if (!this.mCurrentLevel[i][0].hide) {
+				this.playerOne.moveY((32 * i) - this.playerOne.sprite.height);
 			}
 		}
 
-		this.mCharacters.push(this.characterOne);
-		this.mCharacters.push(this.characterTwo);
+		for ( i = 0; i < this.mCurrentLevel.length && this.playerTwo.y === 0; i++) {
+			if (!this.mCurrentLevel[i][this.mCurrentLevel[0].length - 1].hide) {
+				this.playerTwo.moveY((32 * i) - this.playerTwo.sprite.height);
+			}
+		}
 
+		this.mCharacters.push(this.playerOne);
+		this.mCharacters.push(this.playerTwo);
+
+		if(typeof Board.mShowTestVersion !== 'undefined') {
+			this.versionEntity = Game.createEntity({
+				x : 1210,
+				y : 25,
+				text : Board.mShowTestVersion
+			}, [Game.component.isText]);
+		}
 	}
 
 	Board.prototype = {
@@ -85,14 +99,17 @@ var cast = window.cast || {};
 		 * Start the game loop
 		 */
 		start: function() {
-			var self = this;
-			setInterval(
-				function() {
-					if (self.needsUpdate) {
-						self.render();
-					}
-				}, Board.INTERVAL);
+			var self = this,
+				loopId;
 
+			(function game() {
+				loopId = window.requestAnimationFrame(game);
+				self.render();
+				if(self.endGame) {
+					window.cancelAnimationFrame(loopId);
+					loopId = undefined;
+				}
+			})();
 		},
 
 		/**
@@ -103,8 +120,8 @@ var cast = window.cast || {};
 			var player = this.currentPlayer,
 				x = event.pageX - 25, // to allign with tip of mouse pointer
 				y = event.pageY - 25,
-				distanceX = x - this.currentPlayer.x,
-				distanceY = y - this.currentPlayer.y,
+				distanceX = x - player.x,
+				distanceY = y - player.y,
 				distance = Math.sqrt((distanceX * distanceX) + (distanceY * distanceY)),
 				angle = Math.atan2(distanceY, distanceX),
 				spell;
@@ -125,10 +142,10 @@ var cast = window.cast || {};
 		 */
 		switchPlayer : function(self) {
 			self = typeof self === 'undefined' ? this : self;
-			if(self.currentPlayer === self.characterOne) {
-				self.currentPlayer = self.characterTwo;
-			} else if (self.currentPlayer === self.characterTwo) {
-				self.currentPlayer = self.characterOne;
+			if(self.currentPlayer === self.playerOne) {
+				self.currentPlayer = self.playerTwo;
+			} else if (self.currentPlayer === self.playerTwo) {
+				self.currentPlayer = self.playerOne;
 			}
 		},
 
@@ -139,7 +156,8 @@ var cast = window.cast || {};
 		handleEvent : function(event) {
 			//Eventually will parse JSON from game.onMessage
 			var self = this,
-				sprite = this.currentPlayer.sprite,
+				player = this.currentPlayer,
+				sprite = player.sprite,
 				type = event.type,
 				keyCode = event.keyCode,
 
@@ -149,8 +167,8 @@ var cast = window.cast || {};
 				right = 39,
 				down  = 40,
 				message, innerMessage, obj, spell;
-
 			//If the event comes from chromecast
+			this.displayDebug(event.type);
 			if(type === 'message') {
 				message = event.data;
 				obj = JSON.parse(message);
@@ -178,7 +196,7 @@ var cast = window.cast || {};
 							this.isShooting = true;
 							innerMessage = JSON.parse(obj.message);
 							//TODO: type of spell will eventually be sent from android
-							spell = new Spell('fireball', this.currentPlayer.x, this.currentPlayer.y);
+							spell = new Spell('fireball', player.x, player.y);
 							this.shoot(spell, innerMessage.angle, innerMessage.power, this.switchPlayer);
 							this.displayDebug('distance: ' + JSON.parse(obj.message).power + " angle: " + innerMessage.angle);
 						}
@@ -198,11 +216,11 @@ var cast = window.cast || {};
 						switch(keyCode){
 							case 'LEFT':
 							case left:
-								self.moveCharacter(self.currentPlayer, 'left');
+								self.moveCharacter(player, 'left');
 								break;
 							case 'RIGHT':
 							case right:
-								self.moveCharacter(self.currentPlayer, 'right');
+								self.moveCharacter(player, 'right');
 								break;
 							case 'UP':
 							case up:
@@ -235,26 +253,34 @@ var cast = window.cast || {};
 
 				if (direction === 'right') {
 					xOffset = (wizard.width) + character.speed; //Right bound + speed
+					yOffset = wizard.height - (wizard.height / 2);
 
-					if(!this.detectCollision(character, xOffset, yOffset)) {
+					if(!this.level.detectCollision(xOffset + character.x, character.y, false)               //detect top (no offset)
+						&& !this.level.detectCollision(xOffset + character.x, yOffset + character.y, false) //detect bottom
+						&& (xOffset + character.x) > 0 && (xOffset + character.x) < this.width) {
+					//if(!this.detectCollision(character, xOffset, yOffset)) {
 
-							character.x += character.speed;
+							character.moveX(character.x + character.speed);
 							this.moveCharacter(character); //Detect drop
 					}
 
 				} else if (direction === 'left') {
 					xOffset = -1 * (wizard.width / 2) + character.speed;; //Left bound + speed
 
-					if(!this.detectCollision(character, xOffset, yOffset)) {
+					if(!this.level.detectCollision(xOffset + character.x, yOffset + character.y, false)
+						&& (xOffset + character.x) > 0 && (xOffset + character.x) < this.width) {
+					//if(!this.detectCollision(character, xOffset, yOffset)) {
 
-							character.x -= character.speed;
+							character.moveX(character.x - character.speed);
 							this.moveCharacter(character); //Detect drop
 					}
 
 				} else { //no direction
-					yOffset = (wizard.height / 2); //Bottom bound
+					yOffset = (wizard.height) + 1; //Bottom bound + 1
 
-					if(!this.detectCollision(character, xOffset, yOffset)) {
+					if(!this.level.detectCollision(xOffset + character.x, yOffset + character.y, false)
+						&& yOffset + character.y > 0 && yOffset + character.y < this.height) {
+					//if(!this.detectCollision(character, xOffset, yOffset)) {
 
 							character.y += character.speed;
 							this.moveCharacter(character); //Detect drop
@@ -265,17 +291,49 @@ var cast = window.cast || {};
 
 		},
 
+		//TODO: move spell and shooting functionality to the entity system
+		//TODO: Also, explosion is occuring under tiles
+		//TODO: Add variables to a config file to allow easy tinkering
 		shoot : function(spell, angle, power, callback) {
 			var self = this,
 				intervalId,
-				velocity = power / 400,
+				power = (power > 300 ? 300 : power), //TODO: config file
+				velocity = power / 500,              //TODO: config file
 				xSpeed = velocity * Math.cos(angle),
 				ySpeed = velocity * Math.sin(angle),
-				gravity = .1;
+				gravity = 0,
+				animId;
 
 			this.isShooting = true;
 			this.mProjectiles.push(spell);
 
+			(function animate() {
+				//Detecting collisions between speed jumps allows us to incrase speed without breaking collision
+				var betweenSpeedX = xSpeed * (spell.speed / 2),
+					betweenSpeedY = ySpeed * (spell.speed / 2);
+
+				animId = window.requestAnimationFrame(animate);
+
+				spell.x = spell.x + (xSpeed * spell.speed);
+				spell.y = spell.y + (ySpeed * spell.speed);
+				spell.y += gravity;
+				gravity += 1; //TODO: config file
+
+				if (self.level.detectCollision(spell.x, spell.y, true)  || self.detectHit(spell) ||
+					self.level.detectCollision(betweenSpeedX, betweenSpeedY, true)) {  
+
+					cancelAnimationFrame(animId);
+
+					spell.explode(function() {
+						self.isShooting = false;
+						if(typeof callback !== 'undefined') {
+							callback(self);
+						}
+					})
+				}
+
+			})();
+			/*
 			intervalId = setInterval(
 				function() {
 
@@ -287,7 +345,7 @@ var cast = window.cast || {};
 					//Give it a few milliseconds because the spell starts under char.
 					    //hopefully we won't need this after optimizing for better chromecast performance
 					setTimeout(function() {
-						if (self.detectCollision(spell) || self.detectHit(spell)) {
+						if (self.level.detectCollision(spell.x, spell.y, true)  || self.detectHit(spell)) {
 
 							clearInterval(intervalId);
 
@@ -301,8 +359,9 @@ var cast = window.cast || {};
 								}
 							});
 						}
-					}, 200);
+					}, 500);
 			}, Board.INTERVAL);
+*/
 		},
 
 		/**
@@ -316,7 +375,10 @@ var cast = window.cast || {};
 				if (spell.x > character.x && spell.x < character.x + character.sprite.width) {
 					if(spell.y > character.y && spell.y < character.y + character.sprite.width) {
 						if(spell.destroy) {
-							character.health -= spell.damage;
+							character.hp -= spell.damage;
+							if(character.hp <= 0) {
+								this.endGame(character);
+							}
 							return true;
 						}
 					}
@@ -368,6 +430,11 @@ var cast = window.cast || {};
 			return false;
 		},
 
+		endGame : function(loser) {
+			this.endGame = true;
+			//TODO: display winner screen
+		},
+
 		/**
 		 * Renders background, level, and all objects to the screen
 		 */
@@ -390,97 +457,20 @@ var cast = window.cast || {};
 				//Draw Background
 				tempContext.drawImage(background.image, 0, 0);
 
-				//Draw Level Array
-				for (r = 0; r < this.mCurrentLevel.length; r++) {
-					for (c = 0; c < this.mCurrentLevel[0].length; c++) {
-
-						currTile = this.mCurrentLevel[r][c];
-						tileRow = (currTile / ground.totalFrames) | 0; //Bitwise OR = Math.floor
-						tileCol = (currTile % ground.totalFrames) | 0;
-
-						tempContext.drawImage(sprites.groundTile.image,
-							tileCol * tileWidth, tileRow * tileHeight, tileWidth, tileHeight,
-							(c * tileWidth), (r * tileHeight), tileWidth, tileHeight 
-						);
-
-					}
-				}
-
 				//Draw projectiles
 				for (obj in this.mProjectiles) {
 					this.mProjectiles[obj].draw(tempContext);
 				}
-				//Draw characters
-				for (obj in this.mCharacters) {
-					this.mCharacters[obj].draw(tempContext);
-				}
+
+				//draw all entities
+				Game.drawEntities(tempContext);
 
 				//Draw temp canvas to real canvas
+				this.mContext.fillRect(0, 0, canvas.width, canvas.height);
 				this.mContext.drawImage(tempCanvas, 0, 0);
 
-				if(typeof Board.mShowTestVersion !== 'undefined') {
-					this.displayDebug(Board.mShowTestVersion, 1210, 25);
-				}
 			}
 		},
-
-		/**
-		 * Generate level tiles and write them to mCurrentLevel array
-		 * @param {Array} 2D array with Level info
-		 */
-		generateLevel : function(level) {
-			var rowTileCount = level.length,
-				colTileCount = level[0].length,
-				tile = 0, tileLeft = -1, tileRight = -1,
-				tileAbove = -1, tileBelow = -1,
-				c, r;
-
-			for (r = 0; r < rowTileCount; r++) {
-				for (c = 0; c < colTileCount; c++) {
-					//see ground_tile_reference for map
-					tile = level[r][c];
-
-					if (tile !== -1) {
-
-						tileBelow = (typeof (level[r+1])    !== 'undefined') ? level[r+1][c] : -1;
-						tileAbove = (typeof (level[r-1])    !== 'undefined') ? level[r-1][c] : -1;
-						tileRight = (typeof (level[r][c+1]) !== 'undefined') ? level[r][c+1] : -1;
-						tileLeft  = (typeof (level[r][c-1]) !== 'undefined') ? level[r][c-1] : -1;
-
-						if (tileAbove === -1 && tileLeft === -1 && tileRight === -1) {
-							tile = 4;
-						}  else if (tileAbove === -1 && tileRight === -1) {
-							tile = 7;
-						} else if (tileAbove === -1 && tileLeft === -1) {
-							tile = 5;
-						} else if (tileAbove === -1) {
-							tile = 6;
-						} else if (tileBelow === -1 && tileLeft === -1 && tileRight === -1) {
-							tile = 1;
-						} else if (tileBelow === -1 && tileLeft === -1) {
-							tile = 9;
-						} else if (tileBelow === -1 && tileRight === -1) {
-							tile = 11;
-						} else if (tileBelow === -1) {
-							tile = 10;
-						} else if (tileLeft === -1) {
-							tile = 12;
-						} else if (tileRight === -1) {
-							tile = 13;
-						}
-
-						//set tile
-						this.mCurrentLevel[r][c] = tile;
-					}
-				}
-			}
-			for (i in this.mCharacters) {
-				//Update Characters
-				this.moveCharacter(this.mCharacters[i]);
-			}
-
-		},
-
 		/**
 		 * Remove object from draw array
 		 * @param {Object} object to remove
@@ -506,11 +496,18 @@ var cast = window.cast || {};
 
 	    // Display a debug message in the bottom left of the screen and console
 	    displayDebug : function(text, drawX, drawY) {
-	    	var x = typeof drawX !== 'undefined' ? drawX : 20,
+			var x = typeof drawX !== 'undefined' ? drawX : 20,
 	    		y = typeof drawY !== 'undefined' ? drawY : 20;
 
-	    	this.mContext.font = '25pt Calibri';
-	    	this.mContext.fillText(text, x, y);
+	    	if(typeof this.debugEntity !== 'undefined') {
+	    		Game.removeEntity(this.debugEntity);
+	    	}
+			this.debugEntity = Game.createEntity({
+				x      : x,
+				y      : y,
+				text   : text
+			}, [Game.component.isText]);
+
 	     	//console.log(text);
 
 	      //this.castReceiverManager_.setApplicationState(text);

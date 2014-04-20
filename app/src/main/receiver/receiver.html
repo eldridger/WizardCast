@@ -8,23 +8,26 @@
 <body>
     <!-- <DIV id="message">This message shouldn't be here!</DIV> -->
     <DIV id ="debug">DEBUG:<DIV id = "debug_message"></DIV></DIV>
-
+    
     <script type="text/javascript" src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
 
     <script src ="js/sprites.js"></script>
     <script src ="js/board.js"></script>
     <script src ="js/game.js"></script>
+    <script src = "js/entities/componentSystem.js"></script>
+    <script src = "js/entities/player.js"></script>
+    <script src = "js/entities/level.js"></script>
+    <script src = "js/entities/tile.js"></script>
 
     <script type="text/javascript">
         window.onload = function () {
             var canvas  = document.getElementById('board'),
-                context = canvas.getContext("2d"),
-                mBoard  = new cast.Board(context);
+                context = canvas.getContext("2d");
 
             //mBoard.clear();
             //mBoard.drawGrid();
 
-            window.gameEngine = new cast.Game(mBoard);
+            window.gameEngine = new cast.Game();
         };
     </script>
 
