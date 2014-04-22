@@ -7,6 +7,7 @@
 var cast = window.cast || {};
 
 (function() {
+	Board.TEST = true;
 	Board.mShowTestVersion = '1.0'; //Change to see if new files are loaded on Drive yet.
 	Board.FPS = 10;
 	Board.INTERVAL = 1000 / Board.FPS; //ms
@@ -21,16 +22,41 @@ var cast = window.cast || {};
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0, -1,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
-		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0, -1,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0, -1,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
+		[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
+		[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
+		[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
+		[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0] ];
+
+	Board.levelTwo = [
+		[-1, -1,  0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
+		[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1], 
 		[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
 		[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
 		[ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0], 
@@ -132,8 +158,8 @@ var cast = window.cast || {};
 
 			if (!this.isShooting) {
 				this.isShooting = true;
-				spell = new Spell('fireball', player.x, player.y);
-				this.shoot(spell, angle, distance, this.switchPlayer);
+				spell = Game.newSpell('fireball', player.x, player.y);
+				this.shoot(spell, angle, distance/500, this.switchPlayer);
 			}
 		},
 
@@ -142,6 +168,7 @@ var cast = window.cast || {};
 		 */
 		switchPlayer : function(self) {
 			self = typeof self === 'undefined' ? this : self;
+			self.stopMovement();
 			if(self.currentPlayer === self.playerOne) {
 				self.currentPlayer = self.playerTwo;
 			} else if (self.currentPlayer === self.playerTwo) {
@@ -168,73 +195,87 @@ var cast = window.cast || {};
 				down  = 40,
 				message, innerMessage, obj, spell;
 			//If the event comes from chromecast
-			this.displayDebug(event.type);
-			if(type === 'message') {
-				message = event.data;
-				obj = JSON.parse(message);
-				//this.displayDebug(obj.command + "    " + obj.message);
+			if(!this.isShooting) {
 
-				switch(obj.command) {
-					case 'MOVE':
-						//We start and stop moving with one event each and don't need the events in between
-						if(!this.isMoving) {
-							this.isMoving = true;
-							type = 'keydown';
-							keyCode = obj.message;
-						} else {
-							type = 'skip';
-						}
-						break;
-					case 'ACTION':
-						if(obj.message === 'RELEASE') {
-							this.isMoving = false;
-							type = 'keyup';
-						}
-						break;
-					case 'SHOOT':
-						if(!this.isShooting) {
-							this.isShooting = true;
-							innerMessage = JSON.parse(obj.message);
-							//TODO: type of spell will eventually be sent from android
-							spell = new Spell('fireball', player.x, player.y);
-							this.shoot(spell, innerMessage.angle, innerMessage.power, this.switchPlayer);
-							this.displayDebug('distance: ' + JSON.parse(obj.message).power + " angle: " + innerMessage.angle);
-						}
+				this.displayDebug(event.type);
+				if(type === 'message') {
+					message = event.data;
+					obj = JSON.parse(message);
+					//this.displayDebug(obj.command + "    " + obj.message);
 
-						break;
-					default:
-						break;
+					switch(obj.command) {
+						case 'MOVE':
+							//We start and stop moving with one event each and don't need the events in between
+							if(!this.isMoving) {
+								this.isMoving = true;
+								type = 'keydown';
+								keyCode = obj.message;
+							} else {
+								type = 'skip';
+							}
+							break;
+						case 'ACTION':
+							if(obj.message === 'RELEASE') {
+								this.isMoving = false;
+								type = 'keyup';
+							}
+							break;
+						case 'SHOOT':
+							if(!this.isShooting) {
+								this.isShooting = true;
+								innerMessage = JSON.parse(obj.message);
+								//TODO: type of spell will eventually be sent from android
+								spell = Game.newSpell('fireball', player.x, player.y);
+								this.shoot(spell, innerMessage.angle, innerMessage.power, this.switchPlayer);
+								this.displayDebug('distance: ' + JSON.parse(obj.message).power + " angle: " + innerMessage.angle);
+							}
 
+							break;
+						default:
+							break;
+
+					}
 				}
+
+				if(type === 'keydown') {
+					this.currentPlayer.walk();
+
+					this.keydownId = setInterval(
+						function() {
+							switch(keyCode){
+								case 'LEFT':
+								case left:
+									self.moveCharacter(player, 'left');
+									break;
+								case 'RIGHT':
+								case right:
+									self.moveCharacter(player, 'right');
+									break;
+								case 'UP':
+								case up:
+									break;
+								case 'DOWN':
+								case down:
+									break;
+							}
+
+						}, Board.INTERVAL);
+
+				} else if (type === 'keyup') {
+					this.stopMovement();
+				}
+			} else { //we are shooting, stop moving
+				this.stopMovement();
+
 			}
+		},
 
-			if(type === 'keydown') {
-				this.currentPlayer.walk();
-
-				this.keydownId = setInterval(
-					function() {
-						switch(keyCode){
-							case 'LEFT':
-							case left:
-								self.moveCharacter(player, 'left');
-								break;
-							case 'RIGHT':
-							case right:
-								self.moveCharacter(player, 'right');
-								break;
-							case 'UP':
-							case up:
-								break;
-							case 'DOWN':
-							case down:
-								break;
-						}
-
-					}, Board.INTERVAL);
-
-			} else if (type === 'keyup') {
+		stopMovement : function() {
+			if(typeof this.keydownId !== 'undefined') {
 				clearInterval(this.keydownId);
-				this.currentPlayer.stopWalk();
+				this.keydownId = undefined;
+				this.playerOne.stopWalk();
+				this.playerTwo.stopWalk();
 			}
 		},
 
@@ -252,38 +293,33 @@ var cast = window.cast || {};
 			if(wizard.ready) {
 
 				if (direction === 'right') {
-					xOffset = (wizard.width) + character.speed; //Right bound + speed
-					yOffset = wizard.height - (wizard.height / 2);
+					character.moveX(character.x + character.speed);
 
-					if(!this.level.detectCollision(xOffset + character.x, character.y, false)               //detect top (no offset)
-						&& !this.level.detectCollision(xOffset + character.x, yOffset + character.y, false) //detect bottom
-						&& (xOffset + character.x) > 0 && (xOffset + character.x) < this.width) {
-					//if(!this.detectCollision(character, xOffset, yOffset)) {
-
-							character.moveX(character.x + character.speed);
-							this.moveCharacter(character); //Detect drop
+					if(this.level.detectCollision(character, false)) {
+						character.moveX(character.x - character.speed);
+					} else {
+						this.moveCharacter(character); //detect drop
 					}
 
 				} else if (direction === 'left') {
-					xOffset = -1 * (wizard.width / 2) + character.speed;; //Left bound + speed
+					character.moveX(character.x - character.speed);
 
-					if(!this.level.detectCollision(xOffset + character.x, yOffset + character.y, false)
-						&& (xOffset + character.x) > 0 && (xOffset + character.x) < this.width) {
-					//if(!this.detectCollision(character, xOffset, yOffset)) {
-
-							character.moveX(character.x - character.speed);
-							this.moveCharacter(character); //Detect drop
+					if(this.level.detectCollision(character)) {
+						character.moveX(character.x + character.speed);
+					} else {
+						this.moveCharacter(character); //detect drop
 					}
 
 				} else { //no direction
-					yOffset = (wizard.height) + 1; //Bottom bound + 1
 
-					if(!this.level.detectCollision(xOffset + character.x, yOffset + character.y, false)
-						&& yOffset + character.y > 0 && yOffset + character.y < this.height) {
-					//if(!this.detectCollision(character, xOffset, yOffset)) {
+					character.moveY(character.y + character.speed);
 
-							character.y += character.speed;
-							this.moveCharacter(character); //Detect drop
+					if(this.level.detectDrop(character, false)) {
+						character.moveY(character.y - character.speed);
+
+					} else {
+
+						this.moveCharacter(character); //detect drop
 					}
 				}
 
@@ -291,77 +327,65 @@ var cast = window.cast || {};
 
 		},
 
-		//TODO: move spell and shooting functionality to the entity system
-		//TODO: Also, explosion is occuring under tiles
+		//TODO: explosion is occuring under tiles
 		//TODO: Add variables to a config file to allow easy tinkering
+		//TODO: if we add spells that have different trajectories, move shoot to spell file
 		shoot : function(spell, angle, power, callback) {
 			var self = this,
 				intervalId,
-				power = (power > 300 ? 300 : power), //TODO: config file
-				velocity = power / 500,              //TODO: config file
+				power = (power > 0.8 ? 0.8 : power), //TODO: config file
+				velocity = power,              //TODO: config file
+				//power = (power > 300 ? 300 : power), //TODO: config file
+				//velocity = power / 500,              //TODO: config file
 				xSpeed = velocity * Math.cos(angle),
 				ySpeed = velocity * Math.sin(angle),
 				gravity = 0,
-				animId;
+				wait = 0,
+				animId, tempSpell;
 
+			this.stopMovement();
 			this.isShooting = true;
-			this.mProjectiles.push(spell);
-
+			//this.mProjectiles.push(spell);
 			(function animate() {
 				//Detecting collisions between speed jumps allows us to incrase speed without breaking collision
-				var betweenSpeedX = xSpeed * (spell.speed / 2),
-					betweenSpeedY = ySpeed * (spell.speed / 2);
+				var betweenSpeedX = spell.x + (xSpeed * (spell.speed / 2)),
+					betweenSpeedY = spell.y + (ySpeed * (spell.speed / 2));
 
 				animId = window.requestAnimationFrame(animate);
 
-				spell.x = spell.x + (xSpeed * spell.speed);
-				spell.y = spell.y + (ySpeed * spell.speed);
-				spell.y += gravity;
-				gravity += 1; //TODO: config file
+				spell.moveX(spell.x + (xSpeed * spell.speed));
+				spell.moveY(spell.y + (ySpeed * spell.speed));
+				spell.moveY(spell.y + gravity);
+				gravity += 1.5; //TODO: config file
 
-				if (self.level.detectCollision(spell.x, spell.y, true)  || self.detectHit(spell) ||
-					self.level.detectCollision(betweenSpeedX, betweenSpeedY, true)) {  
+				if(wait < spell.speed) {
+					//give time to not instantly collide with self
+					wait += spell.speed/2;
+				} else {
+					//Temp spell is used to detect in between jumps because large jumps are
+							//needed for the poor chromecast performance
+					tempSpell = Game.newSpell(spell.type, betweenSpeedX, betweenSpeedY, true);
 
-					cancelAnimationFrame(animId);
+					if (self.level.detectCollision(spell, true)  || self.detectHit(spell) ||
+						self.level.detectCollision(tempSpell, true) || self.detectHit(tempSpell)) {  
 
-					spell.explode(function() {
-						self.isShooting = false;
-						if(typeof callback !== 'undefined') {
-							callback(self);
-						}
-					})
+						cancelAnimationFrame(animId);
+
+						spell.explode(function() {
+							self.isShooting = false;
+
+							//detect if a character has to drop down
+							self.moveCharacter(self.playerOne);
+							self.moveCharacter(self.playerTwo);
+							if(typeof callback !== 'undefined') {
+								callback(self);
+							}
+						})
+					}
+					tempSpell = undefined;
 				}
 
 			})();
-			/*
-			intervalId = setInterval(
-				function() {
-
-					spell.x = spell.x + (xSpeed * spell.speed);
-					spell.y = spell.y + (ySpeed * spell.speed);
-					spell.y += gravity;
-					gravity += .1;
-
-					//Give it a few milliseconds because the spell starts under char.
-					    //hopefully we won't need this after optimizing for better chromecast performance
-					setTimeout(function() {
-						if (self.level.detectCollision(spell.x, spell.y, true)  || self.detectHit(spell)) {
-
-							clearInterval(intervalId);
-
-							spell.explode(function() {
-								self.remove(spell, self.mProjectiles);
-
-								self.isShooting = false;
-
-								if(typeof callback !== 'undefined') {
-									callback(self);
-								}
-							});
-						}
-					}, 500);
-			}, Board.INTERVAL);
-*/
 		},
 
 		/**
@@ -369,65 +393,26 @@ var cast = window.cast || {};
 		 * @param {Object} spell The spell being casted
 		 */
 		detectHit : function(spell) {
-			var character;
-			for (i in this.mCharacters) {
-				character = this.mCharacters[i];
-				if (spell.x > character.x && spell.x < character.x + character.sprite.width) {
-					if(spell.y > character.y && spell.y < character.y + character.sprite.width) {
-						if(spell.destroy) {
-							character.hp -= spell.damage;
-							if(character.hp <= 0) {
-								this.endGame(character);
-							}
-							return true;
+			var character,
+				sWidth = spell.sprite.width,
+				sHeight = spell.sprite.height,
+				isHit = false;
+
+				hitSuccess = function(player, hit) {
+					if(hit && spell.destroy) {
+						player.hp -= spell.damage;
+						if(player.hp <= 0) {
+							this.endGame();
 						}
+						isHit = true;
 					}
-				}
-			}
-			return false;
-		},
-		
+				};
 
-		/**
-		 * check if the tile at {x, y} is empty or not
-		 * @param {int} x x coord
-		 * @param {int} y y coord
-		 * @return {boolean} true if hit, false if no hit
-		 */
-		detectCollision : function(entity, xOffset, yOffset) {
-			var sprite = entity.sprite,
-				x = entity.x,
-				y = entity.y,
-				level = this.mCurrentLevel,
-				tile = -1,
-				row, col;
 
-			if (typeof xOffset !== 'undefined') {
-				x = x + xOffset;
-			}
-			if (typeof yOffset !== 'undefined') {
-				y = y + yOffset;
-			}
+			this.playerOne.checkHit(spell, hitSuccess);
+			this.playerTwo.checkHit(spell, hitSuccess);
 
-			//If offsets are not defined, these refer to the middle of a tile
-			row = Math.floor((y + (sprite.height / 2)) / 32);
-			col = Math.floor((x + (sprite.width / 2)) / 32);
-
-			if (typeof level[row] !== 'undefined' && typeof level[row][col] !== 'undefined') {
-				tile = level[row][col];
-			} else {
-				//Out of screen
-				return true;
-			}
-
-			if (tile > -1) {
-				if (sprite.destroy) {
-					this.mCurrentLevel[row][col] = -1;       //Remove tile
-					this.generateLevel(this.mCurrentLevel); //Update Level
-				}
-				return true;
-			}
-			return false;
+			return isHit;
 		},
 
 		endGame : function(loser) {
@@ -498,6 +483,8 @@ var cast = window.cast || {};
 	    displayDebug : function(text, drawX, drawY) {
 			var x = typeof drawX !== 'undefined' ? drawX : 20,
 	    		y = typeof drawY !== 'undefined' ? drawY : 20;
+
+	    	if(!Board.TEST) return;
 
 	    	if(typeof this.debugEntity !== 'undefined') {
 	    		Game.removeEntity(this.debugEntity);

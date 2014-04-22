@@ -8,8 +8,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 
 import com.wizardcast.cast.CastHandler;
 
@@ -80,7 +80,7 @@ public class GameControl extends ActionBarActivity {
 
 
     public void setButtonClick() {
-        Button leftBtn = (Button) findViewById(R.id.btnLeft);
+        ImageButton leftBtn = (ImageButton) findViewById(R.id.btnLeft);
         leftBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override public boolean onTouch(View v, MotionEvent event) {
                 switch(event.getAction()) {
@@ -96,7 +96,7 @@ public class GameControl extends ActionBarActivity {
         });
 
         // move right
-        Button rightBtn = (Button) findViewById(R.id.btnRight);
+        ImageButton rightBtn = (ImageButton) findViewById(R.id.btnRight);
         rightBtn.setOnTouchListener(new View.OnTouchListener() {
             @Override public boolean onTouch(View v, MotionEvent event) {
                 switch(event.getAction()) {
@@ -112,7 +112,7 @@ public class GameControl extends ActionBarActivity {
         });
 
         //  Cast spell
-        Button castBtn = (Button) findViewById(R.id.btnCast);
+        ImageButton castBtn = (ImageButton) findViewById(R.id.btnCast);
         castBtn.setOnTouchListener(new View.OnTouchListener() {
 
             @Override public boolean onTouch(View v, MotionEvent event) {

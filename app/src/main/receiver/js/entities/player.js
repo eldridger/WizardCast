@@ -28,9 +28,47 @@
 		}, [Game.component.drawable,
 			Game.component.moveable,
 			Game.component.walks,
-			Game.component.healthBar]);
+			Game.component.healthBar,
+			Game.component.checkHit]);
 
 		return entity;
+	}
+
+	Game.component.checkHit = {
+		checkHit : function(spell, callback) {
+			var sprite = this.sprite,
+				i, corner,
+				spellCorners = {
+					topLeft  : {
+						x    : spell.x,
+						y    : spell.y
+					},
+					topRight : {
+						x    : spell.x + spell.sprite.width,
+						y    : spell.y
+					},
+					botLeft  : {
+						x    : spell.x,
+						y    : spell.y + spell.sprite.height
+					},
+					botRight : {
+						x    : spell.x + spell.sprite.width,
+						y    : spell.y + spell.sprite.height
+					}
+
+				};
+
+			for ( i in spellCorners ) {
+				corner = spellCorners[i];
+
+				if(corner.x > this.x && corner.x < this.x + sprite.width) {
+					if(corner.y > this.y && corner.y < this.y + sprite.height) {
+						callback(this, true);
+					}
+				}
+			}
+			callback(this, false);
+		}
 	}
 
 	Game.component.healthBar = {
@@ -66,4 +104,5 @@
 			this.frame = 0;
 		}
 	}
+
 })();

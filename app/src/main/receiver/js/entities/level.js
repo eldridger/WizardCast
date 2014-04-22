@@ -81,21 +81,94 @@
 
 	Level.prototype = {
 
-		detectCollision : function(x, y, destroy) {
-			var tileRow = Math.floor(y / 32),
-				tileCol = Math.floor(x / 32),
-				destroy = typeof destroy !== 'undefined' ? destroy : false,
-				tile;
+		detectDrop : function(entity) {
+			var sprite = entity.sprite,
+				x = entity.x,
+				y = entity.y,
+				tile, tileRow, tileCol, corners;
 
-			if (typeof this.currentLevel[tileRow] !== 'undefined' &&
-				typeof this.currentLevel[tileRow][tileCol] !== 'undefined') {
+			corners = {
+				botLeft  : {
+					row  : y + sprite.height - 1,
+					col  : x + 5
+				},
 
-				tile = this.currentLevel[tileRow][tileCol];
+				botRight : {
+					row  : y + sprite.height - 1,
+					col  : x + sprite.width - 5
+				}
+					
+			}
 
-				if(!tile.hide) {
-					if(destroy) {
-						tile.destroy();
+			for ( i in corners ) {
+				corner = corners[i];
+				tileRow = Math.floor(corner.row / 32);
+				tileCol = Math.floor(corner.col / 32);
+
+				if(typeof this.currentLevel[tileRow] !== 'undefined' &&
+				   typeof this.currentLevel[tileRow][tileCol] !== 'undefined') {
+
+					tile = this.currentLevel[tileRow][tileCol];
+
+					if(!tile.hide) {
+						return true;
 					}
+
+				} else { //undefined = off screen
+					return true;
+				}
+			}
+			return false;
+		},
+
+		detectCollision : function(entity, destroy) {
+			var sprite = entity.sprite,
+				x = entity.x,
+				y = entity.y,
+				destroy = typeof destroy !== 'undefined' ? destroy : false,
+				tile, tileRow, tileCol, i, corner, corners;
+
+			corners = {
+
+				topLeft  : {
+					row  : y,
+					col  : x
+				},
+
+				topRight : {
+					row  : y,
+					col  : x + sprite.width
+				},
+
+				botLeft  : {
+					row  : y + sprite.height - 1,
+					col  : x
+				},
+
+				botRight : {
+					row  : y + sprite.height - 1,
+					col  : x + sprite.width
+				}
+			}
+
+			for ( i in corners ) {
+				corner = corners[i];
+				tileRow = Math.floor(corner.row / 32);
+				tileCol = Math.floor(corner.col / 32);
+
+				if(typeof this.currentLevel[tileRow] !== 'undefined' &&
+				   typeof this.currentLevel[tileRow][tileCol] !== 'undefined') {
+
+					tile = this.currentLevel[tileRow][tileCol];
+
+					if(!tile.hide) {
+						if(destroy) {
+							tile.destroy();
+						}
+						return true;
+					}
+
+				} else { //undefined = off screen
 					return true;
 				}
 			}
