@@ -32,8 +32,8 @@ public class CastHandler extends MediaRouter.Callback {
     /**
      * APP ID received from registering with Google
      */
-    private static final String APP_ID = "5F455926";     //Ryan
-    //private static final String APP_ID = "AC1D56BB";  //Joe
+    //private static final String APP_ID = "5F455926";     //Ryan
+    private static final String APP_ID = "0412A5C4";  //Joe
     private Context mContext;
     private GLSurfaceView glSurfaceView;
     private MediaRouter mMediaRouter;

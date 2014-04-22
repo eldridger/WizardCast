@@ -1,16 +1,15 @@
 package com.wizardcast;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
 
 import com.wizardcast.cast.CastHandler;
 
@@ -22,13 +21,15 @@ public class GameControl extends ActionBarActivity {
     private static final String DEBUG_TAG = "GameControl";
     private static int width, height;
     private static final float MOVETHRESH = 30f; // distance between ACTIONDOWN and ACTIONMOVE required to count as movement
-    private static float originX, originY, currentX, currentY;
+    private static float angle, power, originX, originY, currentX, currentY;
     private static float rOriginX, rOriginY, rCurrentX, rCurrentY; // coordinates for right side of screen controls
     long setProjectileDown;
     boolean fingerDown = false;
     private SendAction sAction; // thread that waits to send message to chromecast
-
     private CastHandler mCastHandler;
+    /**  openGL variables  */
+    private MyGLSurfaceView glView;
+    private GLRenderer renderer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,16 +39,20 @@ public class GameControl extends ActionBarActivity {
         height = metrics.heightPixels;
         Log.i(DEBUG_TAG, "resolution "+ width + " " + height);
         sAction = new SendAction();
-        setContentView(R.layout.activity_game_control);
+        renderer = new GLRenderer();
+        glView = new MyGLSurfaceView(this, renderer);
+        glView.setRenderer(renderer);
 
+        setContentView(R.layout.activity_game_control);
+        FrameLayout frame = (FrameLayout) findViewById(R.id.myframelayout);
+        frame.addView(glView);
         //Get the cast handler for sending messages to chromecast
         mCastHandler = CastHandler.getInstance(getApplicationContext());
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
-                    .commit();
-        }
+        //  Set buttons
+        setButtonClick();
+
+
     }
 
 
@@ -71,149 +76,63 @@ public class GameControl extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
 
-        public PlaceholderFragment() {
-        }
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_game_control, container, false);
-            return rootView;
-        }
-    }
 
-    /*
-     * onTouchEvent
-     * This method deals with both projectile and movement controls with one listener
-     * Touch events on the left side of screen control movement commands and returns LEFT RIGHT STILL JUMP
-     * Right side returns projectile information such radians and power(0 - 1)
-     *
-     * TODO - There has to be a better way to implement controls.  Either by having multiple ontouch
-     * listeners (perhaps using different views) or by creating a virtual dpad or joystick and then use
-     * onTouch for projectile information
-     *
-     * It also seems that the projectile won't "fire" if the left side touch is pressed and not moving,
-     * after there is an additional action the right side projectile information finishes
-     */
-    @Override
-    public boolean onTouchEvent(MotionEvent e) {
-        int action = e.getAction() & MotionEvent.ACTION_MASK;
-        int pointerIndex = e.getActionIndex();
-        //int pointerId = e.getPointerId(pointerIndex);
-
-        if(e.getX(pointerIndex) <= width/2) {	// left side of screen handles movement
-            Log.i(DEBUG_TAG, "onTouch() left side");
-            switch(action) {
-
-                case MotionEvent.ACTION_POINTER_DOWN:
-                case MotionEvent.ACTION_DOWN:
-                    originX = e.getX(pointerIndex); // set origin coordinates
-                    originY = e.getY(pointerIndex);
-                    Log.i(DEBUG_TAG, "MotionEvent_ ACTION_DOWN:  " + originX+", "+originY);
-                    fingerDown = true;
-                    break;
-
-                case MotionEvent.ACTION_POINTER_UP:
-                case MotionEvent.ACTION_UP:
-                    Log.i(DEBUG_TAG, "MotionEvent_ ACTION_UP " + fingerDown);
-                    fingerDown = false;
-                    mCastHandler.sendMessage("ACTION", "RELEASE");
-                    break;
-
-                case MotionEvent.ACTION_MOVE:
-                    currentX = e.getX(pointerIndex);
-                    currentY = e.getY(pointerIndex);
-                    //Log.i(DEBUG_TAG, "MotionEvent_ ACTION_MOVE" + currentX+", "+currentY + " " + sendMessage.ACTION);
-                    break;
+    public void setButtonClick() {
+        Button leftBtn = (Button) findViewById(R.id.btnLeft);
+        leftBtn.setOnTouchListener(new View.OnTouchListener() {
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        mCastHandler.sendMessage("MOVE", "LEFT");
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        mCastHandler.sendMessage("ACTION", "RELEASE");
+                        break;
+                }
+                return false;
             }
-            moveChar();
-        }
+        });
 
-        /*
-            TODO - Instead of doing multiple touches and going through this convoluted mess can
-            we use look for gesture and determine flick with angle and power?
-         */
-        else {
-            Log.i(DEBUG_TAG, "onTouch() right side");
-            switch(action) {
-                case MotionEvent.ACTION_POINTER_UP:
-                case MotionEvent.ACTION_UP:
-                    double projectile_power = Math.sqrt(Math.pow((e.getX(pointerIndex) - rOriginX), 2) +  Math.pow((e.getY(pointerIndex) - rOriginY), 2));
-                    double angle = Math.atan2(e.getY(pointerIndex) - rOriginY, e.getX(pointerIndex) - rOriginX);
-                    System.out.println ( "motion angle projectile is being fired: " +Math.atan2(e.getY(pointerIndex) - rOriginY, e.getX(pointerIndex) - rOriginX)*-1);
-                    System.out.println("projectile distance " + projectile_power);
-                    castSpell(projectile_power, angle);
-                    break;
-
-                case MotionEvent.ACTION_POINTER_DOWN:
-                case MotionEvent.ACTION_DOWN:
-                    rOriginX = e.getX(pointerIndex);
-                    rOriginY = e.getY(pointerIndex);
-                    System.out.println("projectile action down: "+ rOriginX + ", " + rOriginY);
-                    break;
+        // move right
+        Button rightBtn = (Button) findViewById(R.id.btnRight);
+        rightBtn.setOnTouchListener(new View.OnTouchListener() {
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        mCastHandler.sendMessage("MOVE", "RIGHT");
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        mCastHandler.sendMessage("ACTION", "RELEASE");
+                        break;
+                }
+                return false;
             }
-        }
-        return true;
-    }
-    /*
-        sends command to cast spell
-        sends angle and will take distance and calculate power from 0 - 1 (min max)
-       TODO - power needs to be calculated better either by having set distance for power or
-       be able to take into account some screens having different amount of screen space
-       using 250 for distance to be considered max power
-     */
-    public void castSpell(double distance, double angle) {
-        String action;
-        double projectilePower = distance / 250;
-        if (projectilePower > 1)
-            projectilePower = 1;
-        Log.i(DEBUG_TAG, "castSpell_ (power, angle radians) "+ projectilePower +", " +angle);
-        action = projectilePower+", "+angle;
-        //sAction.send(action);
+        });
 
+        //  Cast spell
+        Button castBtn = (Button) findViewById(R.id.btnCast);
+        castBtn.setOnTouchListener(new View.OnTouchListener() {
 
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("angle", angle);
-            jsonObject.put("power", distance);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        mCastHandler.sendMessage("SHOOT", jsonObject.toString());
-    }
-    /*
-     * sends desired move to chromecast message interface
-     * TODO - send movement and jump command together
-     */
-    public void moveChar(){
-        String action;
-        float diffX = originX - currentX;
-        float diffY = originY - currentY; // used to determine if jumped
-        if(Math.abs(diffX) > MOVETHRESH && fingerDown == true) {
-            if (diffX > 0) { // move left
-                action = "LEFT";
-                mCastHandler.sendMessage("MOVE", "LEFT");
-            } else {
-                action = "RIGHT";
-                mCastHandler.sendMessage("MOVE", "RIGHT");
+            @Override public boolean onTouch(View v, MotionEvent event) {
+                switch(event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        angle = renderer.getAngle();
+                        power = renderer.getPower();
+                        if(power>.94f) power = 1.0f;
+                        Log.i(DEBUG_TAG, "castSpell_ (power, angle radians) "+ power +", " +angle);
+                        JSONObject jsonObject = new JSONObject();
+                        try {
+                            jsonObject.put("angle", angle);
+                            jsonObject.put("power", power);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        mCastHandler.sendMessage("SHOOT", jsonObject.toString());
+                }
+                return false;
             }
-        }
-        else
-            action = "STILL";
-
-        //sAction.send(action);
-        //System.out.println("ACTION: " + action);
-        // check for jump
-        if (Math.abs(diffY) < MOVETHRESH && fingerDown == true) {
-            action = "JUMP";
-            System.out.println("ACTION: " + action);
-            sAction.send(action);
-        }
+        });
     }
-
 }
