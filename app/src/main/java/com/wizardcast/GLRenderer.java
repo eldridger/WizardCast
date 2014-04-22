@@ -35,8 +35,8 @@ public class GLRenderer implements Renderer {
     public float getPower(){
         return mBezier.power;
     }
-    public float getPo(){
-        return mBezier.power;
+    public float getAngle(){
+        return mBezier.angle;
     }
 
 	@Override
