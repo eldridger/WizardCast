@@ -1,0 +1,350 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"displ",
+				"displayText"
+			],
+			[
+				"sender",
+				"senderId"
+			],
+			[
+				"get",
+				"getSenders"
+			],
+			[
+				"f",
+				"function"
+			],
+			[
+				"on",
+				"onSenderDisconnected"
+			],
+			[
+				"cast",
+				"castReceiverManager_"
+			],
+			[
+				"onSe",
+				"onSenderConnected"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "receiver.html",
+			"settings":
+			{
+				"buffer_size": 3411,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "\nvar cast = window.cast || {};\n\n(function() {\n    Game.NAMESPACE = 'urn:x- cast:com.wizardcast.helloworld';\n	/**\n	 * Creates a Game Object\n	 * @param {board} board an optional game board\n	 */\n	function Game(board) {\n		this.mBoard = board;\n		this.mCurrentPlayer;\n\n		console.log('******WIZARDCAST******');\n\n		this.castReceiverManager_ = cast.receiver.CastReceiverManager.getInstance();\n		this.castMessageBus_ =\n			this.castReceiverManager_.getCastMessageBus(Game.NAMESPACE,\n				cast.receiver.CastMessageBus.MessageType.JSON);\n	    this.castMessageBus_.onMessage = this.onMessage.bind(this);\n	    this.castReceiverManager_.onSenderConnected =\n	        this.onSenderConnected.bind(this);\n	    this.castReceiverManager_.onSenderDisconnected =\n	        this.onSenderDisconnected.bind(this);\n	    this.castReceiverManager_.start();\n	}\n\n	//Adds event listening functions to Game.prototype\n	Game.prototype = {\n\n		/**\n		* Sender Connected Event\n		* @param {event} event the sender connected event\n		*/\n		onSenderConnected: function(event) {\n		console.log('onSenderConnected. Total number of senders: ' + \n			this.castReceiverManager_.getSenders().length);\n		},\n\n		/**\n		* Sender Disconnected Event\n		* If all senders are disconnected, closes the application\n		* @param {event} event the sender disconnected event\n		*/\n		onSenderDisconnected: function(event) {\n			console.log('onSenderDisconnected. Total number of senders: ' +\n				this.castReceiverManager_.getSenders().length);\n			if (this.castReceiverManager_.getSenders().length == 0) {\n				window.close();\n			}\n		}\n\n		/**\n		* Message received event; determines event message and command,\n		* and choose function to call based on them.\n		* @param {event} event the event to be processed\n		*/\n		onMessage: function(event) {\n			var message = event.data,\n				senderId = event.senderId,\n				obj = JSON.parse(message);\n\n		      // utility function to display the text message in the input field\n		      function displayText(text) {\n		        console.log(text);\n		        document.getElementById(\"message\").innerHTML=text;\n		        window.castReceiverManager.setApplicationState(text);\n		      };\n\n      		console.log('********onMessage********' + JSON.stringify(event.data));\n\n      		if(obj.command = 'disply_text' && obj.text != null) {\n      			displayText(obj.text);\n      		}\n\n		}\n	}\n})",
+			"file": "js/game.js",
+			"file_size": -1,
+			"file_write_time": -1,
+			"settings":
+			{
+				"buffer_size": 2330,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"contents": "",
+			"file": "js/board.js",
+			"file_size": -1,
+			"file_write_time": -1,
+			"settings":
+			{
+				"buffer_size": 0,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "css/receiver.css",
+			"settings":
+			{
+				"buffer_size": 315,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Programming/WizardCast/app/src/main/receiver/receiver",
+		"/C/Programming/WizardCast/app/src/main/receiver/js/cast.js",
+		"/C/Users/eldri_000/Downloads/site/javascripts/sprite.js",
+		"/C/Programming/WizardCast/app/src/main/receiver/js/ChromeCast.js",
+		"/C/Programming/WizardCast/app/src/main/receiver/WizCastReceiver.sublime-project",
+		"/C/Users/eldri_000/Downloads/space_demo/site/index.html"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"setSelectedDevice",
+			"setselected",
+			"mGameChannel",
+			"api",
+			"mGameView",
+			"connectApiClient",
+			"setSelectedDevice"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "receiver.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3411,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								497,
+								497
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 495.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "js/game.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2330,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2319,
+								2224
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 499.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "js/board.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 0,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "css/receiver.css",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 315,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								36,
+								36
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/CSS/CSS.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"project": "WizCastReceiver.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 177.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
